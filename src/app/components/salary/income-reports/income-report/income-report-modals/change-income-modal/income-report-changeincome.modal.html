@@ -1,0 +1,19 @@
+<section role="dialog" class="uni-modal task-modal">
+    <header>Legg til endring</header>
+
+    <article>
+        <label class="uni-label">
+            <span>Dato</span>
+            <uni-datepicker [(value)]="endring.endringsdato"></uni-datepicker>
+        </label>
+        <label class="uni-label">
+            <span>Beløp</span>
+            <input type="number" [(ngModel)]="endring.refusjonsbeloepPrMnd">
+        </label>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="update()">Legg til endring av beløp</button>
+    </footer>
+</section>

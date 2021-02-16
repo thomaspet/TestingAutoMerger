@@ -9,7 +9,7 @@ import {ElsaProduct, ElsaProductType, ElsaProductStatusCode, ElsaAgreementStatus
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaPurchaseService, ErrorService, ElsaAgreementService} from '@app/services/services';
 import {ElsaPurchase} from '@app/models';
-import * as marked from 'marked';
+import {parse, setOptions, Renderer} from 'marked';
 
 @Component({
     selector: 'uni-product-subscribe-modal',
@@ -46,13 +46,13 @@ export class SubscribeModal implements IUniModal, OnInit {
         private elsaPurchaseService: ElsaPurchaseService,
         private elsaAgreementService: ElsaAgreementService,
     ) {
-        const renderer = new marked.Renderer();
+        const renderer = new Renderer();
         renderer.link = function(href, title, text) {
-            const link = marked.Renderer.prototype.link.apply(this, arguments);
+            const link = Renderer.prototype.link.apply(this, arguments);
             return link.replace('<a', '<a target="_blank"');
         };
 
-        marked.setOptions({renderer: renderer});
+        setOptions({renderer: renderer});
     }
 
     ngOnInit() {
@@ -69,7 +69,7 @@ export class SubscribeModal implements IUniModal, OnInit {
         if (this.product.MarkdownContent) {
             try {
                 const decoded = decodeURI(this.product.MarkdownContent);
-                this.htmlContent = marked.parse(decoded) || '';
+                this.htmlContent = parse(decoded) || '';
             } catch (e) {
                 console.error(e);
             }
@@ -137,7 +137,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                     if (agreement && agreement.AgreementText) {
                         try {
                             const decoded = decodeURI(agreement.AgreementText);
-                            this.htmlContent = marked.parse(decoded) || '';
+                            this.htmlContent = parse(decoded) || '';
                             this.isConsentStep = true;
                         } catch (err) {
                             console.error(err);

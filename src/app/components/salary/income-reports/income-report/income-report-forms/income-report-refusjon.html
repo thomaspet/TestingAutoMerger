@@ -1,0 +1,70 @@
+<section class="row form-row" *ngIf="incomereport && incomereport['Report'].Skjemainnhold.refusjon.endringIRefusjonListe != null">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Refusjon</h1>
+            <p>{{refusjonText}}</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <section class="income-report-uni-field-alignment">
+                    <span>Utbetaler dere lønn under hele eller deler av fraværet og krever dere refusjon?</span>
+                    <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="this.incomereport['Report'].Skjemainnhold.refusjon.refusjonsbeloepPrMndSpecified"
+                        (change)="demandsRefusjonChange($event)" style="margin: 1rem 0"
+                        aria-label="Utbetaler dere lønn under hele eller deler av fraværet og krever dere refusjon?">
+                        <mat-radio-button [value]="true">Ja</mat-radio-button>
+                        <mat-radio-button [value]="false">Nei</mat-radio-button>
+                    </mat-radio-group>
+                </section>
+                <article *ngIf="demandsRefusjon">
+                    <uni-form [config]="{ showLabelAbove: true}" [model]="incomereport" [fields]="fieldsRefusjon$"
+                        (changeEvent)="onChangeEvent($event)"></uni-form>
+                    <section class="income-report-uni-field-alignment">
+                        <span>Er det endringer i refusjonskravet i fraværsperioden?</span>
+                        <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="changeDemand" style="margin: 1rem 0"
+                            aria-label="Er det endringer i refusjonskravet i fraværsperioden?">
+                            <mat-radio-button [value]="true">Ja</mat-radio-button>
+                            <mat-radio-button [value]="false">Nei</mat-radio-button>
+                        </mat-radio-group>
+                    </section>
+                    <section *ngIf="changeDemand" class="income-report-uni-field-alignment">
+                        <simple-table class="selectable"
+                            *ngIf="incomereport['Report'].Skjemainnhold.refusjon.endringIRefusjonListe?.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Fra og med </th>
+                                    <th>Nytt beløp</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr
+                                    *ngFor="let item of incomereport['Report'].Skjemainnhold.refusjon.endringIRefusjonListe">
+                                    <td>{{item.endringsdato | date: 'dd.MM.yyyy'}}</td>
+                                    <td>{{item.refusjonsbeloepPrMnd | uninumberformat:'money'}}</td>
+                                    <td><i class="material-icons" (click)="deleteIncomeChange(item)">delete</i></td>
+                                </tr>
+                            </tbody>
+                        </simple-table>
+                        <a (click)="OpenChangeIncomeModal()" class="add-changeincome-link"> + Legg til ny </a>
+                    </section>
+                    <section class="income-report-uni-field-alignment">
+                    <span>Opphører refusjonskravet i perioden?</span>
+                        <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="showRefusjonOpphoerDato" style="margin: 1rem 0"
+                            aria-label="Opphører refusjonskravet i perioden?">
+                            <mat-radio-button [value]="true">Ja</mat-radio-button>
+                            <mat-radio-button [value]="false">Nei</mat-radio-button>
+                        </mat-radio-group>
+                        <span *ngIf="showRefusjonOpphoerDato">Oppgi den siste dagen dere krever refusjon for </span>
+                        <uni-datepicker [readonly]="readOnly" *ngIf="showRefusjonOpphoerDato" (valueChange)="refusjonsopphoersdatoChange($event)"
+                            [(value)]="refusjonsopphoersdato">
+                        </uni-datepicker>
+                    </section>
+                </article>
+            </section>
+        </section>
+    </section>
+</section>

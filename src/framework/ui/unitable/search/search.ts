@@ -16,7 +16,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import {UniTableUtils, ISavedFilter} from '../unitableUtils';
 import {IUniTableConfig} from '../config/unitableConfig';
 
-import {Observable} from 'rxjs';
+import {fromEvent, Observable} from 'rxjs';
 import {Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';
@@ -235,7 +235,7 @@ export class UniTableSearch implements OnChanges {
                 this.buildBasicSearchFilter(value);
             });
 
-        Observable.fromEvent(this.elementRef.nativeElement.querySelector('input'), 'keydown')
+        fromEvent(this.elementRef.nativeElement.querySelector('input'), 'keydown')
             .filter((event: KeyboardEvent) => {
                 const key = (event.keyCode || event.which);
                 return key === KeyCodes.UP_ARROW || key === KeyCodes.DOWN_ARROW;

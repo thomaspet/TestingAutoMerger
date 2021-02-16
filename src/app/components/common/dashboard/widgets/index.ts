@@ -72,7 +72,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.TIMETRACKING,
-        component: TimeentryWidget
+        component: () => TimeentryWidget
     },
     {
         name: 'OPERATING_PROFITS',
@@ -80,7 +80,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.MISC,
-        component: OperatingProfitsWidget,
+        component: () => OperatingProfitsWidget,
         routePermissions: ['ui_accounting']
     },
     {
@@ -89,7 +89,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.SALES,
-        component: UnpaidWidget,
+        component: () => UnpaidWidget,
         routePermissions: ['ui_sales_invoices'],
     },
     {
@@ -98,7 +98,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.ACCOUNTING,
-        component: UnpaidBillsWidget,
+        component: () => UnpaidBillsWidget,
         routePermissions: ['ui_accounting_bills'],
     },
     {
@@ -107,7 +107,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.MISC,
-        component: ExpensesWidget,
+        component: () => ExpensesWidget,
         routePermissions: ['ui_accounting'],
     },
     {
@@ -116,7 +116,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: ReminderWidget,
+        component: () => ReminderWidget,
         options: {
             showPublicDueDates: false
         }
@@ -127,7 +127,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: ReminderWidget,
+        component: () => ReminderWidget,
         options: {
             showPublicDueDates: true
         }
@@ -138,7 +138,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: PublicDueDatesWidget
+        component: () => PublicDueDatesWidget
     },
     {
         name: 'BANK_BALANCE',
@@ -146,7 +146,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.MISC,
         module: WidgetModule.BANK,
-        component: theme.theme === THEMES.EXT02 ? Ext02BankBalanceWidget : BankBalanceWidget,
+        component: () => theme.theme === THEMES.EXT02 ? Ext02BankBalanceWidget : BankBalanceWidget,
         routePermissions: ['ui_bank']
     },
     {
@@ -155,7 +155,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.BANK,
-        component: BankStatusWidget,
+        component: () => BankStatusWidget,
         routePermissions: ['ui_bank']
     },
     {
@@ -164,7 +164,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.SALES,
-        component: InvoicedWidget,
+        component: () => InvoicedWidget,
         routePermissions: ['ui_sales_invoices'],
     },
     {
@@ -173,7 +173,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.SALES,
-        component: OrderReserveWidget,
+        component: () => OrderReserveWidget,
         routePermissions: ['ui_sales_invoices'],
     },
     {
@@ -183,7 +183,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
         onlyForTheme: THEMES.UE,
-        component: NewsletterWidget
+        component: () => NewsletterWidget
     },
     {
         name: 'CURRENCY',
@@ -191,7 +191,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: CurrencyWidget
+        component: () => CurrencyWidget
     },
     {
         name: 'BRUNO_ACCOUNTING_SERVICES',
@@ -200,7 +200,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
         onlyForTheme: THEMES.EXT02,
-        component: BrunoAccountingServicesWidget
+        component: () => BrunoAccountingServicesWidget
     },
     {
         name: 'LIQUIDITY',
@@ -208,7 +208,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.MISC,
-        component: LiquidityWidget
+        component: () => LiquidityWidget
     },
     {
         name: 'EMPLOYEES',
@@ -216,7 +216,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
-        component: EmployeesWidget,
+        component: () => EmployeesWidget,
         routePermissions: ['ui_salary'],
     },
     {
@@ -225,7 +225,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.SALARY,
-        component: EmploymentsPerJobCodeWidget,
+        component: () => EmploymentsPerJobCodeWidget,
         routePermissions: ['ui_salary'],
     },
     {
@@ -234,7 +234,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
-        component: RecentEmployeesComponent,
+        component: () => RecentEmployeesComponent,
         routePermissions: ['ui_salary'],
     },
     {
@@ -243,7 +243,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
-        component: RecentPayrollRunsComponent,
+        component: () => RecentPayrollRunsComponent,
         routePermissions: ['ui_salary'],
     },
     {
@@ -252,7 +252,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
-        component: SalaryShortcutsComponent,
+        component: () => SalaryShortcutsComponent,
         routePermissions: ['ui_salary'],
     },
     {
@@ -261,7 +261,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALES,
-        component: TopTenCustomersWidget,
+        component: () => TopTenCustomersWidget,
         routePermissions: ['ui_sales_invoices']
     },
     {
@@ -270,7 +270,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.SALES,
-        component: UnpaidPerCustomer,
+        component: () => UnpaidPerCustomer,
         routePermissions: ['ui_sales_invoices']
     },
     {
@@ -279,7 +279,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.ACCOUNTING,
-        component: BalanceWidget,
+        component: () => BalanceWidget,
         routePermissions: ['ui_accounting']
     },
     {
@@ -288,7 +288,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.BANK,
-        component: PaymentsWidget,
+        component: () => PaymentsWidget,
         routePermissions: ['ui_bank_payments']
     },
     {
@@ -297,7 +297,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
-        component: TravelsWidget,
+        component: () => TravelsWidget,
         routePermissions: ['ui_salary_travels']
     },
     {
@@ -306,7 +306,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: NewEntitiesWidget
+        component: () => NewEntitiesWidget
     },
     {
         name: 'REPORT_SHORTCUTS',
@@ -314,7 +314,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
-        component: ReportShortcutsWidget,
+        component: () => ReportShortcutsWidget,
     },
     {
         name: 'HOURS_PER_WORKTYPE',
@@ -322,7 +322,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.TIMETRACKING,
-        component: WorkItemPieChart,
+        component: () => WorkItemPieChart,
         options: {
             viewMode: 'worktype',
             header: 'Timer per timeart',
@@ -336,7 +336,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'small',
         category: WidgetCategory.CHART,
         module: WidgetModule.TIMETRACKING,
-        component: WorkItemPieChart,
+        component: () => WorkItemPieChart,
         options: {
             viewMode: 'project',
             header: 'Timer per prosjekt',

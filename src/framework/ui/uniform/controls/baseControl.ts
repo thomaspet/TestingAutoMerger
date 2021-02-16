@@ -1,10 +1,9 @@
-import {EventEmitter, SimpleChange, SimpleChanges} from '@angular/core';
+import {Directive, EventEmitter, SimpleChange, SimpleChanges} from '@angular/core';
 import {UniFieldLayout} from '../interfaces';
 import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs';
 import {Subscription} from 'rxjs';
-
-declare const _;
+import {get} from 'lodash';
 
 export interface IBaseControl {
     model: any;
@@ -24,6 +23,7 @@ export interface IBaseControl {
     controlSubscription: Subscription;
 }
 
+@Directive()
 export class BaseControl implements IBaseControl {
     public model: any;
     public field: UniFieldLayout;
@@ -39,13 +39,13 @@ export class BaseControl implements IBaseControl {
     public readOnly$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     public createControl(initialValue?: any) {
-        const value = _.get(this.model, this.field.Property);
+        const value = get(this.model, this.field.Property);
         let template;
         let item;
         if (!initialValue && this.field.Options && this.field.Options.source) {
             if (Array.isArray(this.field.Options.source)) {
                 item = this.field.Options.source.find((x) => {
-                    return _.get(x, this.field.Options.valueProperty) === value;
+                    return get(x, this.field.Options.valueProperty) === value;
                 });
             }
         }

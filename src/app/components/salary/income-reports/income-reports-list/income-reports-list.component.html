@@ -1,5 +1,5 @@
 <income-reports-list-toolbar></income-reports-list-toolbar>
-<section class="application">
+<section class="application income-report-list" [attr.aria-busy]="busy">
     <income-reports-list-tab
         (tabsReady)="onTabsReady($event)"
         (activeTabChange)="onActiveTabChange($event)">
@@ -7,7 +7,8 @@
     <ag-grid-wrapper class="borders" style="height: 60vh"
         *ngIf="tabHasIncomeReports; else emptyIncomeReports"
         [resource]="lookupFunction"
-        [config]="tableConfig">
+        [config]="tableConfig"
+        (rowClick)="incomeReportSelected($event)">
     </ag-grid-wrapper>    
     <ng-template #emptyIncomeReports>
         <section class="uni-container">

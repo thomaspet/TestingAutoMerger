@@ -10,7 +10,6 @@ import {
     CustomerInvoiceService,
     ErrorService,
     CustomerInvoiceReminderService,
-    ElsaPurchaseService,
     ReportDefinitionService
 } from '../../../../services/services';
 import {
@@ -21,10 +20,8 @@ import {
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 
-declare const _;
+import {sumBy} from 'lodash';
 
 @Component({
     selector: 'debtcollector-sending',
@@ -60,16 +57,10 @@ export class DebtCollection implements OnInit {
         omitFinalCrumb: true
     };
 
-    public saveactions: IUniSaveAction[] = [
-        {
-            label: 'Send purringer til inkasso',
-            action: (done) => this.debtCollectionProductPurchased ?
-                this.showProductPurchaseToast(done) : this.sendRemindersToDebtCollect(done),
-            disabled: !!this.remindersToDebtCollect
-        }
-    ];
-
-    debtCollectionProductPurchased = false;
+    public saveactions: IUniSaveAction[] = [{
+        label: 'Send purringer til inkasso',
+        action: (done) => this.sendRemindersToDebtCollect(done),
+    }];
 
     constructor(
         private toastService: ToastService,
@@ -79,7 +70,6 @@ export class DebtCollection implements OnInit {
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
         private tabService: TabService,
-        private elsaPurchaseService: ElsaPurchaseService,
         private reportDefinitionService: ReportDefinitionService
     ) { }
 
@@ -91,13 +81,6 @@ export class DebtCollection implements OnInit {
             moduleID: UniModules.Reminders,
             active: true
         });
-
-        // Commented out because we need to disable this feature for now. Then we'll have to refine it for later.
-        // this.elsaPurchaseService.getPurchaseByProductName('Kreditorforeningen')
-        //     .pipe(catchError(() => of(null)))
-        //     .subscribe(product => {
-        //         this.debtCollectionProductPurchased = !!product;
-        //     });
     }
 
     public onRowSelected(data) {
@@ -110,17 +93,17 @@ export class DebtCollection implements OnInit {
         this.setSums();
     }
 
-    private sendRemindersToDebtCollect(donehandler: (str: string) => any): void {
+    private sendRemindersToDebtCollect(donehandler: (message?: string) => any): void {
         const selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
-                ToastType.bad,
+                ToastType.warn,
                 10,
                 'Vennligst velg hvilke linjer du vil sende til inkasso'
             );
 
-            donehandler('Kjøring avbrutt');
+            donehandler();
             return;
         }
 
@@ -192,8 +175,8 @@ export class DebtCollection implements OnInit {
         ).subscribe((reminders) => {
             if (reminders.length > 0) {
                 this.remindersToDebtCollect = reminders;
-                this.summaryData.restSumReadyForDebtCollection = _.sumBy(
-                    this.remindersToDebtCollect, x => x.RestAmount
+                this.summaryData.restSumReadyForDebtCollection = sumBy(
+                    this.remindersToDebtCollect, x => (<any> x).RestAmount
                 );
                 this.summaryData.restSumChecked = 0;
                 this.setSums();

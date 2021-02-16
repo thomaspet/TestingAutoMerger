@@ -8,7 +8,6 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ProductService, WageTypeService, ErrorService} from '@app/services/services';
 import {HttpParams} from '@angular/common/http';
-import {isString} from 'util';
 
 const defaultSystemType = 1; // 1 - Hours (default)
 
@@ -122,7 +121,7 @@ export class WorktypeDetailview {
 
     private findProduct(value: string, ignoreFilter = false) {
         let search = new HttpParams();
-        const txt = filterInput( isString(value) ? value : '');
+        const txt = filterInput(typeof value === 'string' ? value : '');
         search = search.append('select', 'id,partname,name,priceexvat');
         search = search.append('hateoas', 'false');
         let filter = `statuscode eq '${StatusCodeProduct.Active}'`;

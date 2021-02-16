@@ -174,7 +174,7 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
                 (response: Company) => {
                     // TODO: Remove when role assignment is implemented back-end
                     if (newUserRoles && newUserRoles.length) {
-                        const url = environment.BASE_URL_INIT + environment.API_DOMAINS.BUSINESS + 'userroles?bulk-insert-roles';
+                        const url = environment.BASE_URL_INIT + '/api/biz/userroles?bulk-insert-roles';
 
                         this.http.post(url, newUserRoles, {
                             headers: {

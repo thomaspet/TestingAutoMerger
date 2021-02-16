@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, SimpleChanges } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, from, of } from 'rxjs';
 import { Observable } from 'rxjs';
 
 import { StatisticsResponse } from '@app/models/StatisticsResponse';
@@ -590,12 +590,12 @@ export class UniReportParamsModal implements IUniModal, OnInit {
                 this.browserStorageReportParams = this.browserStorageService.getItemFromCompany(this.browserStorageItemKey);
                 if (this.browserStorageReportParams) {
                     this.rememberSelection = true;
-                    return Observable.of(params.map(param => {
+                    return of(params.map(param => {
                         param.value = this.browserStorageReportParams[param.Name];
                         return param;
                     }));
                 } else {
-                    return Observable.fromPromise(this.fetchDefaultValues(params));
+                    return from(this.fetchDefaultValues(params));
                 }
             });
     }

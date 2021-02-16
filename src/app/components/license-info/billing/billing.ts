@@ -28,7 +28,7 @@ export class Billing {
     totalSumWithPeriods: number;
 
     emptyData: boolean;
-    emptyDataImageUrl = theme.widgets?.empty_state_illustration || 'themes/empty_state.svg';
+    emptyDataImageUrl = theme.widgets?.empty_state_illustration || 'config/dist/theme/assets/empty_state.svg';
     emptyDataImageLoaded = false;
     hideEmptyDataImage = false;
 

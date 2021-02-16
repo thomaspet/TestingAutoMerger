@@ -37,6 +37,7 @@ export class UniRadiogroupInput extends BaseControl implements OnChanges {
 
     public ngOnChanges(changes) {
         if (changes['field']) {
+            this.readOnly$.next(this.field.ReadOnly);
             if (!this.field.Options) {
                 this.items = [];
             } else if (!this.field.Options.source) {

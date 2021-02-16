@@ -1,12 +1,13 @@
 import { HttpParams } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IncomeReportData, StatusCodeIncomeReport } from '@uni-entities';
+import { CodeListRowsCodeListRow, IncomeReportData, StatusCodeIncomeReport } from '@uni-entities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IncomeReportsActions } from '../income-reports.actions';
+import { IncomeReportHelperService } from '../shared/shared-services/incomeReportHelperService';
 
 
 
@@ -26,20 +27,26 @@ export class IncomeReportsListComponent {
     imageUrl = 'themes/empty_state.svg';
     tabHasIncomeReports: boolean;
     tableConfig = null;
+    busy: boolean = false;
     currentIncomeReportTab: string = '';
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private incomeReportsActions: IncomeReportsActions
-    ) {}
+        private incomeReportsActions: IncomeReportsActions,
+        private incomeReportHelperService: IncomeReportHelperService,
+    ) { }
 
     ngOnInit(): void {
-        this.tableConfig = this.createIncomeReportsTableConfig();
-        this.route.queryParams.pipe(takeUntil(this.onDestroy$))
-        .subscribe(params => this.lookupFunction = (httpParams: HttpParams) => {
-            this.currentIncomeReportTab = params.incomereportstatus;
-            return this.incomeReportsActions.loadIncomeReports(params.incomereportstatus, httpParams);
+        this.busy = true;
+        this.incomeReportHelperService.getYtelseskoder().subscribe(res => {
+            this.tableConfig = this.createIncomeReportsTableConfig(res);
+            this.route.queryParams.pipe(takeUntil(this.onDestroy$))
+                .subscribe(params => this.lookupFunction = (httpParams: HttpParams) => {
+                    this.currentIncomeReportTab = params.incomereportstatus;
+                    return this.incomeReportsActions.loadIncomeReports(params.incomereportstatus, httpParams);
+                });
+            this.busy = false;
         });
     }
 
@@ -52,8 +59,9 @@ export class IncomeReportsListComponent {
         this.tabs = tabs;
         this.checkNumberOfIncomeReports();
     }
-    onActiveTabChange(assetType) {
-        this.activeTab = assetType;
+
+    onActiveTabChange(tabName) {
+        this.activeTab = tabName;
         this.checkNumberOfIncomeReports();
     }
 
@@ -66,37 +74,74 @@ export class IncomeReportsListComponent {
         this.tabHasIncomeReports = false;
     }
 
+    incomeReportSelected(incomereport: IncomeReportData) {
+        if (incomereport.StatusCode !== StatusCodeIncomeReport.Deleted) {
+            this.router.navigateByUrl(`/salary/incomereports/${incomereport.ID}`);
+        }
+    }
 
-    private createIncomeReportsTableConfig() {
+    private createIncomeReportsTableConfig(ytelser: CodeListRowsCodeListRow[]) {
         return new UniTableConfig(
             'income.reports.list', false, true, 15
         )
-        .setSortable(true)
-        .setVirtualScroll(true)
-        .setSearchable(true)
-        .setColumnMenuVisible(true)
-        .setColumns(
-            [
-                new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false)
-                    .setLinkClick(rowModel => this.router.navigateByUrl(`/salary/incomereports/${rowModel.ID}`)),
-                new UniTableColumn('BusinessRelationInfo.Name', 'Ansatt', UniTableColumnType.Link, false).setAlias('Name'),
-                new UniTableColumn('AltinnReceipt.Timestamp', 'Innsendt', UniTableColumnType.LocalDate, false).setWidth(100).setAlias('SentToAltinn'),
-                new UniTableColumn('Type', 'Type', UniTableColumnType.Text, false).setWidth(100),
-                new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text, false)
-                .setTemplate(rowModel => {
-                    switch (rowModel.StatusCode) {
-                        case StatusCodeIncomeReport.Created:
-                            return 'Opprettet';
-                        case StatusCodeIncomeReport.Sent:
-                            return 'Sendt';
-                        default : return '';
+            .setSortable(true)
+            .setVirtualScroll(true)
+            .setSearchable(true)
+            .setQuickFilters(
+                [
+                    {
+                        field: '_employeeSearch',
+                        label: 'Ansatt',
+                        filterGenerator: query => query
+                            ? `contains(BusinessRelationInfo.Name,'${query}') or startswith(Employee.EmployeeNumber,'${query}')`
+                            : '',
                     }
-                }),
-                new UniTableColumn('MonthlyRefund', 'Mnd ref beløp', UniTableColumnType.Money, false).setWidth(100),
-                new UniTableColumn('Employment.ID', 'Arbeidsforhold', UniTableColumnType.Text, false).setWidth(100)
-                    .setTemplate((item) => `${item.EmploymentNo} ${item.JobName}`).setVisible(false)
-            ]
-       );
+                ]
+            )
+            .setColumnMenuVisible(true)
+            .setColumns(
+                [
+                    new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false),
+                    new UniTableColumn('BusinessRelationInfo.Name', 'Ansatt', UniTableColumnType.Link, false).setAlias('Name'),
+                    new UniTableColumn('AltinnReceipt.Timestamp', 'Innsendt', UniTableColumnType.LocalDate, false).setWidth(100).setAlias('SentToAltinn'),
+                    new UniTableColumn('Type', 'Type', UniTableColumnType.Text, false).setWidth(100)
+                        .setTemplate(rowmodel => {
+                            return this.incomeReportHelperService.getIncomReportTypeText(rowmodel.Type, ytelser);
+                        }),
+                    new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text, false)
+                        .setTemplate(rowModel => {
+                            switch (rowModel.StatusCode) {
+                                case StatusCodeIncomeReport.Created:
+                                    return 'Opprettet';
+                                case StatusCodeIncomeReport.Sent:
+                                    return 'Sendt';
+                                case StatusCodeIncomeReport.Rejected:
+                                    return 'Avvist';
+                                case StatusCodeIncomeReport.Deleted:
+                                    return 'Slettet';
+                                default: return '';
+                            }
+                        }),
+                    new UniTableColumn('MonthlyRefund', 'Mnd ref beløp', UniTableColumnType.Money, false).setWidth(100),
+                    new UniTableColumn('Employment.ID', 'Arbeidsforhold', UniTableColumnType.Text, false).setWidth(100)
+                        .setTemplate((item) => `${item.EmploymentNo} ${item.JobName}`).setVisible(false)
+                ]
+            )
+            .setContextMenu(
+                [
+                    {
+                        label: 'Opprett ny med denne inntektsmelding som mal',
+                        action: line => this.incomeReportsActions.createIncomeReportBasedOnID(line.ID),
+                        disabled: (item) => (item.StatusCode === StatusCodeIncomeReport.Deleted),
+                    },
+                    {
+                        label: 'Slett',
+                        action: line => this.incomeReportsActions.deleteIncomeReport(line)
+                            .subscribe(() => this.table.refreshTableData()),
+                        disabled: (item) => (item.StatusCode === StatusCodeIncomeReport.Deleted),
+                    }
+                ]
+            );
 
     }
 }

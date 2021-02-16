@@ -1,0 +1,21 @@
+<article class="uni-label label-above" *ngIf="periods">
+    <label>Perioder</label>
+    <section class="alert bad" *ngFor="let validation of validations">{{validation.message}}</section>
+    <section [class]="'period-selector-section ' + (period._invisible ? 'invisible' : '')" *ngFor="let period of _periods; let i = index">
+        <section class="period-selector">
+            <mat-form-field>
+                <mat-date-range-input [disabled]="readOnly" [rangePicker]="picker">
+                    <input (focus)="currentInput = 'fom'" (blur)="onChange(i, 'fom')" onClick="this.setSelectionRange(0, this.value.length)" matStartDate [(ngModel)]="period.fom">
+                    <input (focus)="currentInput = 'tom'" (blur)="onChange(i, 'tom')" onClick="this.setSelectionRange(0, this.value.length)" matEndDate [(ngModel)]="period.tom">
+                </mat-date-range-input>
+                <mat-datepicker-toggle [disabled]="readOnly" matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker (closed)="onMenuClose(i)" #picker></mat-date-range-picker>
+            </mat-form-field>
+            <button *ngIf="!readOnly" class="tertiary" (click)="removeDate(i)" ><i class="material-icons">delete_outline</i></button>
+        </section>
+
+    </section>
+    <section>
+        <a *ngIf="!readOnly" (click)="addDate()">+ Ny periode</a>
+    </section>
+</article>

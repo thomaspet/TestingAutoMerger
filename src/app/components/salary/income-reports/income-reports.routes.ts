@@ -13,7 +13,7 @@ export const incomeReportsRoutes: Routes = [
         path: ':id',
         component: IncomeReportComponent,
         canDeactivate: [CanDeactivateGuard],
-        canActivate: [NewIncomeReportGuard]
+        canActivate: [NewIncomeReportGuard],
     }
 ];
 

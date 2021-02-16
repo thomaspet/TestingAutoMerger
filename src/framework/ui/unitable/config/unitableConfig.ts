@@ -49,6 +49,7 @@ export interface IUniTableConfig {
     pageSize?: number;
     multiRowSelect?: boolean;
     multiRowSelectDefaultValue?: boolean;
+    multiRowSelectOnRowClick?: boolean;
     selectOnlyVisible?: boolean;
     columnMenuVisible?: boolean;
     advancedColumnMenu?: boolean;
@@ -107,6 +108,7 @@ export class UniTableConfig implements IUniTableConfig {
     public rowDraggable: boolean;
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
+    public multiRowSelectOnRowClick: boolean;
     public selectOnlyVisible: boolean;
     public columnMenuVisible: boolean;
     public advancedColumnMenu: boolean;
@@ -293,11 +295,13 @@ export class UniTableConfig implements IUniTableConfig {
     public setMultiRowSelect(
         multirowSelect: boolean,
         multiRowSelectDefaultValue?: boolean,
-        selectOnlyVisible?: boolean
+        selectOnlyVisible?: boolean,
+        selectOnRowClick?: boolean,
     ) {
         this.multiRowSelect = multirowSelect;
         this.multiRowSelectDefaultValue = multiRowSelectDefaultValue || false;
         this.selectOnlyVisible = selectOnlyVisible || false;
+        this.multiRowSelectOnRowClick = selectOnRowClick || false;
         return this;
     }
 

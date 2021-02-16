@@ -7,7 +7,7 @@ import {Component} from '@angular/core';
 })
 export class NewsletterWidget {
 
-    imageUrl: string = 'themes/newsletter.svg';
+    imageUrl: string = 'config/dist/theme/assets/newsletter.svg';
 
     constructor() { }
 

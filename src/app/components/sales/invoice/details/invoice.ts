@@ -162,7 +162,16 @@ export class InvoiceDetails implements OnInit {
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
     private customerExpands: string[] = [
-        'DeliveryTerms',
+        'Info',
+        'Info.Addresses',
+        'Info.DefaultContact.Info',
+        'Info.Emails',
+        'Info.Phones',
+        'Info.DefaultEmail',
+        'Info.DefaultPhone',
+        'Info.InvoiceAddress',
+        'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -172,24 +181,15 @@ export class InvoiceDetails implements OnInit {
         'Dimensions.Dimension8',
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
-        'Info',
-        'Info.Addresses',
-        'Info.DefaultContact.Info',
-        'Info.Emails',
-        'Info.DefaultEmail',
-        'Info.Contacts.Info',
-        'Info.DefaultPhone',
-        'Info.Phones',
-        'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'Distributions'
+        'DefaultSeller.Seller',
+        'Distributions',
+        'DeliveryTerms',
+        'PaymentTerms',
     ];
 
     private invoiceExpands: Array<string> = [
-        'Customer',
-        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -200,12 +200,12 @@ export class InvoiceDetails implements OnInit {
         'DefaultDimensions.Dimension9',
         'DefaultDimensions.Dimension10',
         'DeliveryTerms',
-        'InvoiceReference',
-        'JournalEntry',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
+        'DefaultSeller.Seller',
+        'JournalEntry',
+        'InvoiceReference',
         'CustomerInvoiceReminders'
     ];
 

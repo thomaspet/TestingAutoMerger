@@ -18,9 +18,8 @@ import {NewCompanyModal} from '../new-company-modal/new-company-modal';
 import {FieldType} from '@uni-entities';
 import {theme, THEMES} from 'src/themes/theme';
 import { Company } from '@uni-entities';
-import { tap } from 'rxjs/internal/operators/tap';
-import { switchMap } from 'rxjs/operators';
 import {MoveCompanyModal} from './move-company-modal/move-company-modal';
+import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'license-info-company-list',

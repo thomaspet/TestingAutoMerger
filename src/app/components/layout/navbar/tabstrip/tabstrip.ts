@@ -2,8 +2,9 @@ import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/co
 import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../authService';
-import {Observable} from 'rxjs';
+import {fromEvent, Observable} from 'rxjs';
 import {Subject} from 'rxjs';
+import {takeUntil, throttleTime} from 'rxjs/operators';
 
 export interface IUniTab {
     url: string;
@@ -98,18 +99,18 @@ export class UniTabStrip {
         });
 
         this.collapseTabs = window.innerWidth <= 1250;
-        Observable.fromEvent(window, 'resize')
-            .takeUntil(this.onDestroy$)
-            .throttleTime(200)
-            .subscribe(event => {
-                const collapseTabs = window.innerWidth <= 1250;
+        fromEvent(window, 'resize').pipe(
+            takeUntil(this.onDestroy$),
+            throttleTime(200)
+        ).subscribe(event => {
+            const collapseTabs = window.innerWidth <= 1250;
 
-                // Only run change detection when layout changes
-                if (collapseTabs !== this.collapseTabs) {
-                    this.collapseTabs = collapseTabs;
-                    this.cdr.detectChanges();
-                }
-            });
+            // Only run change detection when layout changes
+            if (collapseTabs !== this.collapseTabs) {
+                this.collapseTabs = collapseTabs;
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     public ngAfterViewInit() {

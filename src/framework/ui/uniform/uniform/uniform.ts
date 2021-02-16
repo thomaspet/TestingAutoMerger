@@ -7,8 +7,6 @@ import {UniFormError} from '@uni-framework/ui/uniform';
 import {UniField} from '../unifield/unifield';
 import {UniSection} from '../unisection/unisection';
 import {Observable} from 'rxjs';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/observable/merge';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import * as _ from 'lodash';
 import {FeaturePermissionService} from '@app/featurePermissionService';

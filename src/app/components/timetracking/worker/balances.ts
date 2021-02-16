@@ -6,7 +6,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../.
 import {MinutesToHoursPipe} from '../../common/utils/pipes';
 import {ChangeMap} from '../../common/utils/changeMap';
 import {safeDec, safeInt} from '../../common/utils/utils';
-import {Observable} from 'rxjs';
+import {merge, Observable} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 @Component({
@@ -135,7 +135,7 @@ export class View {
                     this.changeMap.removables.remove(item.ID, false);
                 });
             });
-            return items.length > 0 ? Observable.merge(obsSave, obsDel) : obsDel;
+            return items.length > 0 ? merge(obsSave, obsDel) : obsDel;
         }
 
         return obsSave;

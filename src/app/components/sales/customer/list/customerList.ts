@@ -98,7 +98,7 @@ export class CustomerList implements OnInit {
         disabled: false
     }];
 
-    customerTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER;
+    customerTemplateUrl: string = environment.PUBLIC_FILES_URL + '/files/import/CustomerTemplateFinal.xlsx';
     private customerPermissions: ImportUIPermission;
 
     constructor(

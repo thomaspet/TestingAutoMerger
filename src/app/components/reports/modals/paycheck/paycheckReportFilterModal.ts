@@ -4,11 +4,12 @@ import {ReportDefinition, ReportDefinitionParameter, PayrollRun, Employee} from 
 
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, from} from 'rxjs';
 import {Observable} from 'rxjs';
 import {
     ReportDefinitionParameterService, FinancialYearService, ErrorService, SharedPayrollRunService, EmployeeService
 } from '@app/services/services';
+import {map, tap} from 'rxjs/operators';
 
 
 interface IModalConfig  {
@@ -156,21 +157,20 @@ export class PayCheckReportFilterModal implements OnInit {
                     text: 'Ok',
                     class: 'good',
                     method: () => {
-                        Observable
-                            .fromPromise(this.modal.getContent())
-                            .map((component: PaycheckReportFilterModalContent) => {
+                        from(this.modal.getContent()).pipe(
+                            map((component: PaycheckReportFilterModalContent) => {
                                 const params = component.GetParams();
                                 component.config.report.parameters.map(param => {
                                     param.value = params[param.Name];
                                 });
                                 return component;
-                            })
-                            .do(() => this.close())
-                            .subscribe((component: PaycheckReportFilterModalContent) => {
-                                this.modalService.open(UniPreviewModal, {
-                                    data: component.config.report
-                                });
+                            }),
+                            tap(() => this.close())
+                        ).subscribe((component: PaycheckReportFilterModalContent) => {
+                            this.modalService.open(UniPreviewModal, {
+                                data: component.config.report
                             });
+                        });
                     }
                 },
                 {

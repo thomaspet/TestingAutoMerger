@@ -2,8 +2,6 @@ const path = require('path');
 const colors = require('colors/safe');
 const fs = require('fs');
 
-console.log(colors.green('\nGenerating app metadata'));
-
 const project_root = path.resolve(__dirname, '..');
 
 // Write metadata file
@@ -21,8 +19,6 @@ fs.writeFile(metadataFilePath, metadata, { flat: 'w' }, function (err) {
     if (err) {
         return console.log(colors.red(err));
     }
-
-    console.log(colors.cyan('> Done generating metadata'));
 });
 
 function getGitRevision() {

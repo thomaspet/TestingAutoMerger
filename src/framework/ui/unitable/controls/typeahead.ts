@@ -8,12 +8,8 @@ import {
     OnInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/filter';
+import {Observable, of} from 'rxjs';
+import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
 
 export interface ITypeaheadOptions {
     lookupFunction: (searchValue: string) => Observable<any> | any[];
@@ -87,20 +83,20 @@ export class UnitableTypeahead implements OnInit {
             }
         }
 
-        this.inputControl.valueChanges
-        .switchMap((value) => {
-            this.lookupResults = [];
-            this.busy = true;
-            if (value) {
-                this.selectedIndex = 0;
-            } else {
-                this.selectedIndex = -1;
-            }
-            return Observable.of(value);
-        })
-        .debounceTime(100)
-        .distinctUntilChanged()
-        .subscribe((query) => {
+        this.inputControl.valueChanges.pipe(
+            switchMap(value => {
+                this.lookupResults = [];
+                this.busy = true;
+                if (value) {
+                    this.selectedIndex = 0;
+                } else {
+                    this.selectedIndex = -1;
+                }
+                return of(value);
+            }),
+            debounceTime(100),
+            distinctUntilChanged()
+        ).subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
                 this.lookupResults = results;
                 this.expanded = true;
@@ -163,7 +159,7 @@ export class UnitableTypeahead implements OnInit {
     private performLookup(search: string): Observable<any> {
         const lookupResult = this.options.lookupFunction(search);
         return Array.isArray(lookupResult)
-            ? Observable.of(lookupResult)
+            ? of(lookupResult)
             : <Observable<any>> lookupResult;
     }
 
@@ -181,7 +177,7 @@ export class UnitableTypeahead implements OnInit {
         }
     }
 
-    private itemClicked(index) {
+    itemClicked(index) {
         this.confirmSelection();
         this.expanded = false;
         setTimeout(() => {

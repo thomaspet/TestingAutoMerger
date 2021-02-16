@@ -1,0 +1,26 @@
+<section role="dialog" class="uni-modal task-modal">
+    <header>{{options.header | translate}}</header>
+
+    <article>
+        <label class="uni-label" >
+            <span>Naturalytelse</span>
+            <uni-select [items]="this.options.modalConfig?.ytelser" [value]="ytelse.naturalytelseType"
+                [config]="ytelseConfig" (valueChange)="onYtelseChange($event)">
+            </uni-select>
+        </label>
+
+        <label class="uni-label">
+            <span>Dato</span>
+            <uni-datepicker [(value)]="ytelse.fom"></uni-datepicker>
+        </label>
+        <label class="uni-label" *ngIf="this.options.modalConfig?.showBelop">
+            <span>Beløp</span>
+            <input type="number" [(ngModel)]="ytelse.beloepPrMnd" >
+        </label>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="update()">Legg til naturalytelse</button>
+    </footer>
+</section>
