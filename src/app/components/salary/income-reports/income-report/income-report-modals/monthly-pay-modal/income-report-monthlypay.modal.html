@@ -1,0 +1,57 @@
+<section role="dialog" class="uni-modal task-modal">
+    <header>Beregnet månedslønn</header>
+
+    <article [attr.aria-busy]="busy">
+        <section class="income-report alert info" *ngIf="!isHidden">
+            <i class="material-icons-outlined">info</i>
+            <span>Har den ansatte lik fastlønn hver måned, kan du bruke den som inntektsgrunnlag. Har den ansatte varierende lønn hver
+            måned så velg om du vil bruke siste 3 måneders lønnsavregninger (hovedregel) eller 1 eller 2 måneder som grunnlag.
+            Foreslått verdi returneres til feltet for Beregnet månedslønn i skjemaet.</span>
+            <i class="material-icons close-button" role="button" (click)="this.isHidden = true">close</i>
+        </section>
+
+
+        <label class="uni-label">
+            <span>Hent månedslønn fra</span>
+            <uni-select [items]="this.monthlyPaySelector" [value]="selectedMonthlyPay" [config]="monthlyPayConfig"
+                (valueChange)="onMonthlyPaySelectorChange($event)">
+            </uni-select>
+        </label>
+        <section>
+            <simple-table class="selectable" *ngIf="paidKontantytelserList?.length">
+                <thead>
+                    <tr>
+                        <th>Lønnsart</th>
+                        <th>Tekst</th>
+                        <th>Dato fra</th>
+                        <th>Dato til</th>
+                        <th>Sum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of this.paidKontantytelserList">
+                        <td>{{item.wagetypenumber}}</td>
+                        <td>{{item.wagetypename}}</td>
+                        <td>{{item.fromdate | date: 'dd.MM.yyyy'}}</td>
+                        <td>{{item.todate | date: 'dd.MM.yyyy'}}</td>
+                        <td>{{item.sum | unicurrency}}</td>
+                    </tr>
+                </tbody>
+            </simple-table>
+        </section>
+        <p>Foreslått verdi: <span matTooltip={{monthlyPaySuggestionText}}>{{monthlyPaySuggestion | unicurrency}}</span></p>
+        <section *ngIf="deviationTooLarge" class="income-report alert warn">
+            <i class="material-icons warn">warning</i>
+            <article>Foreslått verdi avviker mer enn 10% fra timelønn på arbeidsforholdet. 
+                Du bør sjekke om ansatt har hatt ferie, permisjon, startdato eller endret arbeidsforhold i perioden. 
+                Beregnet arbeidsforhold må da justeres i forhold til dette. 
+                Les reglene <a href="https://lovdata.no/nav/folketrygdloven/kap8/%C2%A78-28" target="_blank"> her.</a>
+            </article>
+        </section>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="update()">Bruk kalkulert</button>
+    </footer>
+</section>

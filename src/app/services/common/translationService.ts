@@ -7,7 +7,7 @@ import {theme} from 'src/themes/theme';
 @Injectable()
 export  class UniTranslationService {
     locale: BehaviorSubject<string> = new BehaviorSubject('NO');
-    overrides = theme.translationOverrides;
+    overrides = theme.translationOverrides || {};
 
     DICTIONARY: any = {
         NO: NO,

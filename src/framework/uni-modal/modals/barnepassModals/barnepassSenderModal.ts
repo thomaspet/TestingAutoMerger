@@ -7,7 +7,6 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { IUniTab } from '@uni-framework/uni-tabs/uni-tabs';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
-import { isNullOrUndefined } from 'util';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { ComboButtonAction } from '@uni-framework/ui/combo-button/combo-button';
@@ -71,8 +70,8 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
                 this.close();
             }*/
 
-            this.rowsWithEmail = rows.filter(x => x['email']);
-            this.rowsWithoutEmail = rows.filter(x => isNullOrUndefined(x['email']));
+            this.rowsWithEmail = rows.filter(x => x.email);
+            this.rowsWithoutEmail = rows.filter(x => !x.email);
             this.rowsWithEmail.forEach((row) => {
                 row['_type'] = this.sendTypeEmail;
             });

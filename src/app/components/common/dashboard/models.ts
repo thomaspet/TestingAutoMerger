@@ -21,7 +21,7 @@ export interface WidgetDefinition {
     category: WidgetCategory;
     module: WidgetModule;
     size: 'small' | 'large';
-    component;
+    component: () => any;
     options?;
     onlyForTheme?: THEMES;
     routePermissions?: string[];

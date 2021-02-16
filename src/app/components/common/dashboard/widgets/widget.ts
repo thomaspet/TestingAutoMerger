@@ -24,7 +24,7 @@ export class Widget {
             return;
         }
 
-        const componentFactory = this.factoryResolver.resolveComponentFactory(this.widgetDefinition.component);
+        const componentFactory = this.factoryResolver.resolveComponentFactory(this.widgetDefinition.component());
 
         this.componentSlot.clear();
         const componentRef = this.componentSlot.createComponent(componentFactory);

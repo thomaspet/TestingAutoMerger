@@ -24,22 +24,22 @@
 
                 <div class="avatar">
                     <uni-avatar [name]="user.DisplayName || user.Email"></uni-avatar>
-                    <span *ngIf="user._statusClass" class="status-indicator" [ngClass]="user._statusClass"></span>
+                    <span *ngIf="user['_statusClass']" class="status-indicator" [ngClass]="user['_statusClass']"></span>
                 </div>
 
                 <section class="user-info">
                     <strong>{{user.DisplayName || user.Email}}</strong>
 
-                    <small *ngIf="user._isActive && !user._isSupport">
-                        {{user._isAdmin ? 'Administrator' : 'Standard bruker'}}
+                    <small *ngIf="user['_isActive'] && !user['_isSupport']">
+                        {{user['_isAdmin'] ? 'Administrator' : 'Standard bruker'}}
                     </small>
 
-                    <small *ngIf="user._isActive && user._isSupport">
-                        {{user._supportType}}
+                    <small *ngIf="user['_isActive'] && user['_isSupport']">
+                        {{user['_supportType']}}
                     </small>
 
-                    <small *ngIf="!user._isActive && user._statusText">
-                        {{user._statusText}}
+                    <small *ngIf="!user['_isActive'] && user['_statusText']">
+                        {{user['_statusText']}}
                     </small>
                 </section>
             </li>

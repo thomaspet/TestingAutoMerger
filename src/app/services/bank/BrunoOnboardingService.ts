@@ -138,7 +138,7 @@ export class BrunoOnboardingService {
                                 buttonLabels: {
                                     accept: 'OK'
                                 },
-                                icon: 'themes/ext02/ext02-success-accountconfig.svg'
+                                icon: 'config/dist/theme/assets/ext02-success-accountconfig.svg'
                             });
                         }
 
@@ -205,7 +205,7 @@ export class BrunoOnboardingService {
                 header: bankAccount ?
                     'Avslutt integrasjon med banken' : 'Avslutt kobling mot bank',
                 message: deleteAccount ?
-                    `Konto ${this.numberFormat.asBankAcct(+bankAccount.AccountNumber)} vil slettes, følgende tjenester vil avsluttes: ` 
+                    `Konto ${this.numberFormat.asBankAcct(+bankAccount.AccountNumber)} vil slettes, følgende tjenester vil avsluttes: `
                     : bankAccount ?
                         `Jeg ønsker å avslutte disse tjenestene på konto ${this.numberFormat.asBankAcct(+bankAccount.AccountNumber)}:` :
                         'Jeg ønsker å avslutte koblingene på alle kontoer:',
@@ -222,7 +222,7 @@ export class BrunoOnboardingService {
                             reject: 'Avbryt',
                             accept: 'Bekreft'
                         },
-                        icon: 'themes/ext02/ext02-cancel-integration.svg',
+                        icon: 'config/dist/theme/assets/ext02-cancel-integration.svg',
                         modalConfig:
                         {
                             iconConfig:

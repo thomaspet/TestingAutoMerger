@@ -8,19 +8,20 @@
     <title></title>
     <base href="/">
 
-    <link rel="icon" type="image/x-icon" href="themes/favicon.ico?v=1">
-    <link rel="stylesheet" href="themes/spinner.css">
+    <link rel="icon" type="image/x-icon" href="config/dist/theme/assets/favicon.ico">
+    <link rel="stylesheet" href="config/dist/theme/spinner.css?v=%VERSION_GUID%">
+    <link rel="stylesheet" href="config/dist/theme/theme.css?v=%VERSION_GUID%">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined">
 
-    <script src="assets/startup.js"></script>
+    <script src="assets/startup.js?v=%VERSION_GUID%"></script>
 </head>
 
 <body>
     <iframe id="silentLogout" hidden></iframe>
 
     <section id="app-spinner">
-        <img src="themes/logo.svg">
+        <img src="config/dist/theme/assets/logo.svg?v=%VERSION_GUID%">
         <div class="app-load-indicator">
             <div></div>
         </div>
@@ -28,5 +29,6 @@
     </section>
 
     <uni-app></uni-app>
+    <script>window.VERSION_GUID = '%VERSION_GUID%'</script>
 </body>
 </html>

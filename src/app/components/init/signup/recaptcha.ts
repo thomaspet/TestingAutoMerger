@@ -42,7 +42,7 @@ export class UniRecaptcha {
     private addScript() {
         window.reCaptchaLoad = () => {
             const config = {
-                'sitekey': environment.RECAPTCHA_KEY,
+                'sitekey': '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
                 // Run callbacks with NgZone to trigger change detection
                 // (Angular won't automatically react to these callbacks since they happen outside the change detection zone)
                 'callback': (token) => this.ngZone.run(() => this.reCaptchaCode.next(token)),

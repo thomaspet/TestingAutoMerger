@@ -16,7 +16,7 @@ export class CellRenderer {
     static getLinkColumn(hasLink: (row) => boolean, onClick: (col, row) => void) {
         return function(params: ICellRendererParams) {
             const row = params.data;
-            if (!hasLink || hasLink(row)) {
+            if (params.value && (!hasLink || hasLink(row))) {
                 const el = document.createElement('span');
                 el.setAttribute('role', 'link');
                 el.classList.add('table-link');

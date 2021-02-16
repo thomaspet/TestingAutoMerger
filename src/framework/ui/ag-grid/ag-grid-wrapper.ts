@@ -548,7 +548,7 @@ export class AgGridWrapper {
 
     public onRowClick(event: RowClickedEvent) {
         const row = event && event.data;
-        if (row && !row['_isSumRow']) {
+        if (row && !row['_isSumRow'] && !(this.config.multiRowSelect && this.config.multiRowSelectOnRowClick)) {
             this.rowClick.next(event.data);
         }
     }

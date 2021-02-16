@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/interval';
+import {interval, Observable, Subject} from 'rxjs';
 
 import {environment} from 'src/environments/environment';
 import {UniHttp} from '../../../../framework/core/http/http';
 
 import {JobRun} from '../../../models/admin/jobs/jobRun';
 import {ElsaContract, ElsaCompanyLicense, ElsaProduct, ElsaUserLicense} from '@app/models';
+import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
 
 export interface JobLogProgress {
     ID: number;
@@ -70,15 +70,30 @@ export class JobService {
     }
 
     public getJobRunUntilNull(jobName: string, hangfireJobId: number): Observable<JobLog> {
-        let keepRequestingLogs = true;
-        const TenSeconds = 10 * 1000;
-        return Observable
-            .interval(TenSeconds)
-            .timeInterval()
-            .switchMap(() => this.getJobRun(jobName, hangfireJobId, 9999))
-            .takeWhile(() => keepRequestingLogs)
-            .do(jobRun => keepRequestingLogs = jobRun.Progress.every(p => p.Progress !== null))
-            .do(jobRun => jobRun.Progress = jobRun.Progress.filter(p => p.Progress !== null));
+        let counter = 0;
+        const stop$ = new Subject();
+
+        return interval(10000).pipe(
+            takeUntil(stop$),
+            switchMap(() => {
+                return this.getJobRun(jobName, hangfireJobId, 9999)
+            }),
+            map(jobRun => {
+                jobRun.Progress = jobRun.Progress?.filter(p => p.Progress !== null)
+                return jobRun;
+            }),
+            tap(jobRun => {
+                // Hacky way to check if job is done, but at the moment we don't have anything better..
+                const done = jobRun.Progress?.some(item => item.Progress === 'Finished bureau mass invite');
+                counter++;
+
+                // Break when done or after 12 attempts (2 minutes)
+                if (done || counter > 12) {
+                    stop$.next();
+                    stop$.complete();
+                }
+            })
+        );
     }
 
     // jobs

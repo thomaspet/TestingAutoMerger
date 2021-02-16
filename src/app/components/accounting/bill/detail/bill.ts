@@ -2,7 +2,7 @@ import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit, ChangeDetect
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
+import {BehaviorSubject, forkJoin, from, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
 import {filterInput, getNewGuid, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
@@ -2835,7 +2835,7 @@ export class BillView implements OnInit, AfterViewInit {
             }
 
             this.busy = true;
-            return Observable.fromPromise(
+            return from(
                 this.tryJournal(href).then((status: ILocalValidation) => {
                     if (!status.success) return status;
 

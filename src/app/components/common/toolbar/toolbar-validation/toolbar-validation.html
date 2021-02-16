@@ -4,7 +4,7 @@
     [ngClass]="{'interactive': item.link || item.click}"
     (click)="onClick(item)">
 
-    <i class="material-icons validation-icon" [ngClass]="item.type">
+    <i class="material-icons validation-icon" [ngClass]="item.type" [matTooltip]="item.tooltip">
         {{getValidationIcon(item)}}
     </i>
 

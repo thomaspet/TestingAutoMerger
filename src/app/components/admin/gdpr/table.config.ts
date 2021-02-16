@@ -1,5 +1,5 @@
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
-import * as  fs from 'file-saver';
+import {saveAs} from 'file-saver';
 import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
 const configStoreKey = `gdprPeopleList`;
 
@@ -36,7 +36,7 @@ downloadColumn
         const blob = new Blob([content], {
             type: 'text/plain;charset=utf-8'
         });
-        fs.saveAs(blob, filename);
+        saveAs(blob, filename);
     }))
     .setTemplate(() => 'Download');
 

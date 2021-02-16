@@ -9,6 +9,7 @@ import {
     UserService,
     UserRoleService,
     ElsaContractService,
+    ElsaProductService,
 } from '@app/services/services';
 
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -44,6 +45,7 @@ export class UserManagement {
         private toastService: ToastService,
         private tabService: TabService,
         private elsaContractService: ElsaContractService,
+        private elsaProductService: ElsaProductService,
     ) {
         this.tabService.addTab({
             name: 'Brukere',
@@ -69,7 +71,7 @@ export class UserManagement {
     }
 
     private filterUsers(query: string) {
-        if (query && query.length) {
+        if (query?.length) {
             this.filteredUsers = this.users.filter(user => {
                 const displayName = user.DisplayName
                     ? user.DisplayName.toLowerCase()

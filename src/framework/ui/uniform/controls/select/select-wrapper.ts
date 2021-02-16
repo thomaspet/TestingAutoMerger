@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
-import {Observable} from 'rxjs';
+import {fromEvent, Observable, Subscription} from 'rxjs';
 import {UniSelect} from '../../../uni-select/select';
 import {BaseControl} from '../baseControl';
 
@@ -38,6 +38,8 @@ export class UniSelectInput extends BaseControl implements OnChanges {
 
     public items: any[];
     public selectedItem: any;
+
+    focusSubscription: Subscription;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
         super();
@@ -80,10 +82,14 @@ export class UniSelectInput extends BaseControl implements OnChanges {
         }
     }
 
+    ngOnDestroy() {
+        this.focusSubscription?.unsubscribe();
+    }
+
     public createFocusListener(component: UniSelect) {
         const self = this;
         if (component.valueInput) {
-            Observable.fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
+            this.focusSubscription = fromEvent(component.valueInput.nativeElement, 'focus').subscribe(() => {
                 self.focusEvent.emit(self);
             });
         }

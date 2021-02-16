@@ -25,19 +25,14 @@ export class TofHelper {
             entity.DefaultSellerID = null;
         }
 
-        // Hacky fix for backend error that occurs when a new unsaved
-        // address exists in both Addresses and InvoiceAddress or ShippingAddress.
-        // Should be solved on the api.
-        const info: BusinessRelation = entity.Customer && entity.Customer.Info;
-        if (info) {
-            if (info.InvoiceAddress && info.InvoiceAddress._createguid) {
-                info.Addresses = (info.Addresses || []).filter(a => a._createguid !== info.InvoiceAddress._createguid);
-            }
+        /*
+            Removing customer so we don't accidentally save changes to it through
+            complex put on the tof entity. This might be limited on the backend later,
+            but Frode want's a hotfix on it.
 
-            if (info.ShippingAddress && info.ShippingAddress._createguid) {
-                info.Addresses = (info.Addresses || []).filter(a => a._createguid !== info.ShippingAddress._createguid);
-            }
-        }
+            https://unimicro.atlassian.net/browse/RIG-570
+        */
+        entity.Customer = null;
 
         return entity;
     }

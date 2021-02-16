@@ -2,7 +2,7 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {RequestMethod} from '@uni-framework/core/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable, forkJoin, of} from 'rxjs';
+import {Observable, forkJoin, of, from} from 'rxjs';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ErrorService} from '../common/errorService';
 import {EmailService} from '../common/emailService';
@@ -12,7 +12,7 @@ import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource,
 import {environment} from 'src/environments/environment';
 import {BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '@app/services/common/statisticsService';
-import {catchError, map} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -169,16 +169,16 @@ export class ReportService extends BizHttp<string> {
             s.unsubscribe();
         });
 
-        return Observable.forkJoin(
+        return forkJoin(
             this.generateReportObservable().do(() => {
                 this.progress$.next(this.progress$.value + 25);
             }),
             this.getDataSourcesObservable().do(() => {
                 this.progress$.next(this.progress$.value + 25);
             }),
-            Observable.fromPromise(this.reportGenerator.loadLibraries()).do(() => {
-                this.progress$.next(this.progress$.value + 25);
-            }),
+            from(this.reportGenerator.loadLibraries()).pipe(
+                tap(() => this.progress$.next(this.progress$.value + 25))
+            )
         ).switchMap(() => {
             return this.renderReport();
         }).switchMap(renderedReport => {

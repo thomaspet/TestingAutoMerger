@@ -21,10 +21,11 @@ import {KeyCodes} from '@app/services/common/keyCodes';
 
 import {GridApi} from 'ag-grid-community';
 
-import {Observable} from 'rxjs';
+import {from, Observable, of} from 'rxjs';
 import {Subject} from 'rxjs';
 import * as _ from 'lodash';
 import * as Immutable from 'immutable';
+import {throttleTime} from 'rxjs/operators';
 
 interface IEditorPosition {
     width?: number;
@@ -95,13 +96,13 @@ export class TableEditor {
             });
         });
 
-        this.moveThrottle
-            .throttleTime(100)
-            .subscribe(event => {
-                if (!this.moving) {
-                    this.move(event.direction, event.key);
-                }
-            });
+        this.moveThrottle.pipe(
+            throttleTime(100)
+        ).subscribe(event => {
+            if (!this.moving) {
+                this.move(event.direction, event.key);
+            }
+        });
     }
 
     public ngOnChanges(changes) {
@@ -241,24 +242,24 @@ export class TableEditor {
 
         if (value && value.then && typeof value.then === 'function') {
             // Value is a promise
-            valueObservable =  Observable.fromPromise(value);
+            valueObservable =  from(value);
         } else if (value && value.subscribe && typeof value.subscribe === 'function') {
             // Value is an observable
             valueObservable = value;
         } else {
-            valueObservable = Observable.of(value);
+            valueObservable = of(value);
         }
 
         return valueObservable.switchMap((res) => {
             if (res === undefined) {
-                return Observable.of(undefined);
+                return of(undefined);
             }
 
             _.set(rowModel, field, res);
             _.set(rowModel, '_isEmpty', false);
             _.set(rowModel, '_isDirty', true);
 
-            return Observable.of({
+            return of({
                 rowModel: rowModel,
                 field: field,
                 newValue: res
@@ -597,10 +598,10 @@ export class TableEditor {
 
     private getCellByIndexes(rowIndex: number, cellIndex: number): Observable<Element> {
         if (rowIndex < 0 || cellIndex < 0) {
-            return Observable.of(null);
+            return of(null);
         }
 
-        return Observable.create(observer => {
+        return new Observable(observer => {
             const uniColumn = this.visibleColumns[cellIndex];
             if (uniColumn && this.agGridApi) {
                 this.agGridApi.ensureColumnVisible(uniColumn.field);

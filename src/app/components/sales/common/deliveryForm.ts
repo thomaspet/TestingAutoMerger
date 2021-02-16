@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Address, LocalDate, Terms, PaymentInfoType} from '@app/unientities';
-import {AddressService, BusinessRelationService, ErrorService, TermsService} from '@app/services/services';
+import {AddressService, BusinessRelationService, CustomerService, ErrorService, TermsService} from '@app/services/services';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -35,6 +35,7 @@ export class TofDeliveryForm implements OnInit {
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
+        private customerService: CustomerService,
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private errorService: ErrorService,
@@ -133,6 +134,10 @@ export class TofDeliveryForm implements OnInit {
 
         this.businessRelationService.Put(businessRelation.ID, businessRelation).subscribe(
             res => {
+                // Invalidate the cache of customerService since we've indirectly altered
+                // a customer by updating businessRelation
+                this.customerService.invalidateCache();
+
                 this.entity.Customer.Info = res;
                 this.addressService.addressToShipping(this.entity, res.Addresses[addressIndex]);
                 this.model$.next(this.entity);
