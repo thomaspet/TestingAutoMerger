@@ -78,14 +78,14 @@ export class Signup {
                 this.step2Form.enable();
                 if (theme.theme === THEMES.EXT02) {
                     this.celebrusService.useDataLayer('PageLoaded', { 
-                        process: this.getCelebrusObject('Signup post mail', 'Set password', 'start', 0) }, null);
+                        process: this.getCelebrusObject('Signup post mail', 'Set password', 'start', '0') }, null);
                 }
             } else {
                 this.step1Form.enable();
                 this.step2Form.disable();
                 this.confirmationCode = null;
                 if (theme.theme === THEMES.EXT02) {
-                    this.celebrusService.useDataLayer('PageLoaded', { process: this.getCelebrusObject('Signup pre mail', 'Personal information', 'start', 0) }, null);
+                    this.celebrusService.useDataLayer('PageLoaded', { process: this.getCelebrusObject('Signup pre mail', 'Personal information', 'start', '0') }, null);
                 }
             }
         });
@@ -126,7 +126,7 @@ export class Signup {
                 () => {
                     if (theme.theme === THEMES.EXT02) {
                         this.celebrusService.useDataLayer('PageLoaded', 
-                            { process: this.getCelebrusObject('Signup pre mail', 'E-mail sent', 'receipt', 1) }, null);
+                            { process: this.getCelebrusObject('Signup pre mail', 'E-mail sent', 'receipt', '1') }, null);
                     }
                 }
             );
@@ -166,7 +166,7 @@ export class Signup {
                     this.headerText = 'Brukerregistrering fullført';
                     if (theme.theme === THEMES.EXT02) {
                         this.celebrusService.useDataLayer('PageLoaded', 
-                            { process: this.getCelebrusObject('Signup post mail', 'Registration completed', 'receipt', 1) }, 
+                            { process: this.getCelebrusObject('Signup post mail', 'Registration completed', 'receipt', '1') }, 
                         null);
                     }
                 },
@@ -212,7 +212,7 @@ export class Signup {
             );
     }
 
-    getCelebrusObject(name: string, step: string, step_type: string, step_index: number) {
+    getCelebrusObject(name: string, step: string, step_type: string, step_index: string) {
         return {
             application: 'DNB Regnskap',
             name,

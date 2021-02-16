@@ -29,6 +29,9 @@ export class CelebrusService {
             this.router.events.pipe(
                 filter((e): e is NavigationEnd => e instanceof NavigationEnd),
             ).subscribe(e => {
+                if (this.router.url?.includes('sign-up')) {
+                    return;
+                }
                 this.useDataLayer('PageLoaded', {});
             });
         }
