@@ -154,15 +154,10 @@
         </article>
         <footer style="position: absolute; bottom: 2rem; width: 100%;">
             <button *ngIf="steps === 0" class="secondary pull-left" (click)="close()"> Gjennomfør senere </button>
-            <button class="secondary" *ngIf="steps > 0 && steps < 7" (click)="prev()" [disabled]="isDirty">
-                Tilbake
-            </button>
-
-            <button *ngIf="isDirty" class="c2a" (click)="saveAccount()"> Lagre </button>
+            <button class="secondary" *ngIf="steps > 0 && steps < 7" (click)="prev()" [disabled]="isDirty"> Tilbake </button>
 
             <button *ngIf="steps === 6 || (steps === 5 && serviceProvider === 4)" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
 
-            <!-- [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid" -->
             <button *ngIf="steps < 5 || (steps === 5 && serviceProvider !== 4)" class="c2a" (click)="next()"> Neste </button>
 
             <button class="c2a" *ngIf="this.steps === 7" (click)="close()"> Ferdig </button>
