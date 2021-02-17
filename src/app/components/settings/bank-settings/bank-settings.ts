@@ -32,6 +32,7 @@ import {AuthService} from '@app/authService';
 interface RGBValues {
     rgb: boolean;
     status: string;
+    code: PreApprovedPaymentCodes;
 }
 
 enum ServiceProvider {
@@ -39,6 +40,13 @@ enum ServiceProvider {
     Bruno = 2,
     Mock = 3,
     ZDataV3 = 4
+}
+
+enum PreApprovedPaymentCodes {
+    InActive = 700000,
+    WaitForBankCancel = 700002,
+    WaitForBankApprove = 700003,
+    Active = 700005
 }
 
 @Component({
@@ -69,7 +77,8 @@ export class UniBankSettings {
     ];
     RGBValues: RGBValues = {
         rgb:  false,
-        status: ''
+        status: '',
+        code: PreApprovedPaymentCodes.InActive
     };
 
     RGBFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -203,20 +212,23 @@ export class UniBankSettings {
     }
 
     setRGBValues(agreements: any[]) {
-        const preApprovedBankPayments = agreements[0]?.PreApprovedBankPayments;
+        const preApprovedBankPayments = agreements[0].PreApprovedBankPayments;
 
-        this.RGBValues.rgb = preApprovedBankPayments === 700003 || preApprovedBankPayments === 700005;
+        this.RGBValues.rgb = preApprovedBankPayments === PreApprovedPaymentCodes.WaitForBankApprove
+                          || preApprovedBankPayments === PreApprovedPaymentCodes.Active;
+        this.RGBValues.code = preApprovedBankPayments;
 
         if (preApprovedBankPayments !== null) {
             switch (preApprovedBankPayments) {
-                case 700003: {
+                case PreApprovedPaymentCodes.WaitForBankCancel:
+                    this.RGBValues.status = 'Venter på avbestilling';
+                    break;
+                case PreApprovedPaymentCodes.WaitForBankApprove:
                     this.RGBValues.status = 'Venter på godkjenning';
                     break;
-                }
-                case 700005: {
+                case PreApprovedPaymentCodes.Active:
                     this.RGBValues.status = 'Aktiv';
                     break;
-                }
             }
         }
     }
@@ -338,7 +350,10 @@ export class UniBankSettings {
         const userID = this.authService.currentUser?.BankIntegrationUserName;
 
         // Box is checked, order RGB
-        if (rgbValues.rgb && rgbValues.status === '') {
+        if (rgbValues.rgb &&
+            (rgbValues.code === PreApprovedPaymentCodes.InActive ||
+             rgbValues.code === PreApprovedPaymentCodes.WaitForBankCancel)) {
+
             if (this.isExt02Environment) {
                 let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
 
@@ -352,9 +367,12 @@ export class UniBankSettings {
             }
 
             this.isRGBDirty = false;
-            return this.bankService.orderPreApprovedBankPayments(bankID);
+            return this.bankService.orderPreApprovedBankPayments(bankID, false);
 
-        } else if (!rgbValues.rgb && rgbValues.status !== '') {
+        } else if (!rgbValues.rgb &&
+            (rgbValues.code === PreApprovedPaymentCodes.Active ||
+             rgbValues.code === PreApprovedPaymentCodes.WaitForBankApprove)) {
+
             if (this.isExt02Environment) {
                 let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
 
@@ -365,8 +383,9 @@ export class UniBankSettings {
 
                 this.updatePreApprovedBankPaymentStatus(true);
             }
-            // Cancell RGB at ZData, to be implemented
-            // return this.bankService.orderPreApprovedBankPayments(bankID, true);
+            // Cancel RGB at ZData, to be implemented
+            this.isRGBDirty = false;
+            return this.bankService.orderPreApprovedBankPayments(bankID, true);
         }
 
         this.isRGBDirty = false;
@@ -375,7 +394,7 @@ export class UniBankSettings {
 
     private updatePreApprovedBankPaymentStatus(cancel: boolean) {
         const agreement = this.agreements[0];
-        agreement.PreApprovedBankPayments = cancel ? 700000 : 700003;
+        agreement.PreApprovedBankPayments = cancel ? PreApprovedPaymentCodes.WaitForBankCancel : PreApprovedPaymentCodes.WaitForBankApprove;
 
         this.bankService.updateBankIntegrationAgreement(agreement.ID, agreement).subscribe();
     }

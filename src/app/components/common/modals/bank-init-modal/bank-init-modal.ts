@@ -266,7 +266,7 @@ export class BankInitModal implements IUniModal, OnInit {
 
                 agreement.PreApprovedBankPayments = 700003;
             }
-            this.bankService.orderPreApprovedBankPayments(this.companySettings.CompanyBankAccount.BankID).subscribe();
+            this.bankService.orderPreApprovedBankPayments(this.companySettings.CompanyBankAccount.BankID, false).subscribe();
         }
     }
 
