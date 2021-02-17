@@ -302,6 +302,11 @@
                         "activeInSidebar": true
                     },
                     {
+                        "name": "NAVBAR.ANNUAL_SETTLEMENT",
+                        "url": "/accounting/annual-settlement",
+                        "activeInSidebar": true
+                    },
+                    {
                         "name": "NAVBAR.RESULT_BALANCE",
                         "url": "/accounting/accountingreports",
                         "activeInSidebar": true

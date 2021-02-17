@@ -18,5 +18,9 @@
     "APP_INSIGHTS_KEY": "5021c092-3624-45ac-b9ce-96c9ddd3a4b2",
 
     "PUBLIC_FILES_URL": "https://public-files.dnbregnskap.dnb.no",
-    "LICENSE_AGREEMENT_URL": "https://public-files.dnbregnskap.dnb.no/files/license/Lisensavtale_DNBRegnskap.pdf"
+    "LICENSE_AGREEMENT_URL": "https://public-files.dnbregnskap.dnb.no/files/license/Lisensavtale_DNBRegnskap.pdf",
+    "ID_PORTEN": {
+        "authority": "https://oidc-ver2.difi.no/idporten-oidc-provider/",
+        "client_id": "213d95cf-9f5a-4ea2-b3a8-e45fee9248c5"
+    }
 }

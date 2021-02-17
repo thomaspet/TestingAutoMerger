@@ -1,0 +1,30 @@
+<section role="dialog" class="uni-modal" style="width: 65rem">
+    <header> Inngående skattemessig verdi på dine eiendeler</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+        <section>
+            <section class="alert info">
+                <span>
+                    Forskjell mellom regnskapsmessig og skattemessig verdi på dine eiendeler påvirker skattekostnaden. Dersom du eide noen av dine eiendeler da året startet må du taste inn inngående skattemessig verdi på disse. Dette finner du i RF-1217 fra i fjor.
+                    <br/> <br/>
+                    For eiendeler i saldogruppe A-D ønsker vi verdi for hele gruppen, mens for eiendeler E-J må du registrere inngående skattemessig verdi på eiendel. Husk at det kun er eiendeler du eide i det året startet du skal registerer verdi på her. Eiendeler du har kjøpt i løpet av året har vi oversikt over i eiendeler-modulen
+                </span>
+            </section>
+
+            <section>
+                <ag-grid-wrapper
+                    [resource]="groups"
+                    [config]="tableConfig">
+                </ag-grid-wrapper>
+            </section>
+        </section>
+    </article>
+
+    <footer>
+        <button class="secondary pull-right" (click)="close()">Lukk</button>
+        <button class="c2a" (click)="save()">Lagre</button>
+    </footer>
+</section>

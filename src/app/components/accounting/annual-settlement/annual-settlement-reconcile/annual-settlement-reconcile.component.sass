@@ -1,0 +1,46 @@
+annual-settlement-reconcile
+    simple-table > table
+        border: 1px solid var(--border-color)
+        .good
+            color: var(--color-good) !important
+        .warn
+            color: var(--color-warn) !important
+        .comment
+            cursor: pointer
+        .saldo-button-container,.saldo-button-header
+            padding-left: 0 !important
+            padding-right: 0 !important
+
+    .row
+        margin: 0
+    .saldo-button
+        border: 1px solid #1890FF
+        color: #1890FF !important
+        padding: 1px 8px
+        min-width: 100px
+        font-size: 12px
+        line-height: 20px
+        font-weight: 400
+        height: 40px
+        background: #E6F7FF
+        &.invisible
+            opacity: 0
+    .page-navigation
+        margin: 0
+        margin-bottom: 1rem
+    mat-checkbox
+        &.mat-checkbox-checked .mat-checkbox-background
+            background-color: var(--checkbox-checked-background-good) !important
+            border: #fff
+        .mat-checkbox-checkmark .mat-checkbox-checkmark-path
+            stroke: var(--checkbox-checked-color-good) !important
+            stroke-width: 3px
+
+    .account-attachments
+        margin: 2rem
+        width: 48rem
+
+@media screen and (min-width: 1600px)
+    annual-settlement-reconcile
+        .application
+            padding: 1rem 10rem

@@ -108,7 +108,7 @@ export class RegisterDepreciationModal {
         }
         this.assetsService.depreciateAsset(
             model.AssetID,
-            new LocalDate(new Date()),
+            model.DepreciationDate,
             model.DepreciationValue,
             model.Description
         ).pipe(take(1)).subscribe(result => {

@@ -22,6 +22,10 @@ export let environment: {
 
     PUBLIC_FILES_URL: string,
     LICENSE_AGREEMENT_URL: string,
+    ID_PORTEN: {
+        authority: string;
+        client_id: string;
+    },
 };
 
 export function setEnvironment(env) {

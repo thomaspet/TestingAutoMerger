@@ -1,0 +1,25 @@
+<uni-annual-settlement-header-component
+    [annualSettlement]="annualSettlement"
+    [isAlertOpen]="true"
+    [title]="'Skatteberegning og disponering av resultat'"
+    [completeLabel]="'Bokfør disponering'"
+    [icon]="'info'"
+    [outlinedIcon]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36115"
+    [saveButtonLabel]="'Lagre'"
+    [alert]="infoData"
+    [tabTitle]="'Skatteberegning'"
+    (clickCompleteButton)="openSummaryModal($event)"
+    (clickSaveButton)="saveAnnualSettlement($event)"
+>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <ng-container *ngIf="!busy">
+        <summary-detail-component *ngFor="let data of summary"
+            [title]="data.title"
+            [data]="data.items"
+            (changeSummaryLine)="onChangeSummaryLine($event)"
+        ></summary-detail-component>
+    </ng-container>
+</uni-annual-settlement-header-component>

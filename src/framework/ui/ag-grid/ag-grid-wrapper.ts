@@ -1,41 +1,32 @@
-import {
-    Component,
-    Input,
-    Output,
-    ChangeDetectorRef,
-    ChangeDetectionStrategy,
-    EventEmitter,
-    ViewChild,
-    ElementRef,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, ViewChild,} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {UniTableConfig, QuickFilter} from '../unitable/config/unitableConfig';
+import {QuickFilter, UniTableConfig} from '../unitable/config/unitableConfig';
 import {UniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
 import {ColumnMenuNew} from './column-menu-modal';
-import {TableEditor, EditorChangeEvent} from './editor/editor';
+import {EditorChangeEvent, TableEditor} from './editor/editor';
 import {CellRenderer} from './cell-renderer/cell-renderer';
 import {ITableFilter, ICellClickEvent, IRowChangeEvent, IOptionBanner} from './interfaces';
 
 import {
-    GridApi,
-    ColDef,
-    GridReadyEvent,
-    ModelUpdatedEvent,
     CellClickedEvent,
-    SelectionChangedEvent,
-    GridSizeChangedEvent,
-    ColumnResizedEvent,
+    ColDef,
     ColumnMovedEvent,
+    ColumnResizedEvent,
+    GridApi,
+    GridReadyEvent,
+    GridSizeChangedEvent,
+    ICellRendererParams,
+    ModelUpdatedEvent,
+    PaginationChangedEvent,
     RowClickedEvent,
     RowDragEndEvent,
-    PaginationChangedEvent,
     RowNode,
+    SelectionChangedEvent,
     SortChangedEvent,
-    ICellRendererParams,
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -43,8 +34,7 @@ import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {StatusCellRenderer} from './cell-renderer/status-cell';
 import {AttachmentCellRenderer} from './cell-renderer/attachment-cell';
 
-import {Observable, Subscription} from 'rxjs';
-import {Subject} from 'rxjs';
+import {Observable, Subject, Subscription} from 'rxjs';
 import * as _ from 'lodash';
 import {TableLoadIndicator} from './table-load-indicator';
 
@@ -1043,6 +1033,27 @@ export class AgGridWrapper {
                 agCol.minWidth = 100;
             } else {
                 agCol.minWidth = <number> col.width;
+            }
+
+            if (col.type === UniTableColumnType.Button) {
+                agCol.cellRenderer = CellRenderer.getButtonColumn(col);
+            }
+
+            if (col.type === UniTableColumnType.Icon) {
+                agCol.cellRenderer = CellRenderer.getIconColumn(col);
+            }
+
+            if (col?.options?.headerIconResolver) {
+                agCol.headerComponent = CellRenderer.getIconHeader(col?.options?.headerIconResolver);
+            }
+
+            if (col.type === UniTableColumnType.Custom) {
+                if (col.options.cellRenderer) {
+                    agCol.cellRenderer = col.options.cellRenderer(col);
+                }
+                if (col.options.headerComponent) {
+                    agCol.cellRenderer = col.options.headerComponent(col);
+                }
             }
 
             agCol.colId = col.field;

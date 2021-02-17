@@ -1,0 +1,22 @@
+<uni-annual-settlement-header-component
+    [annualSettlement]="annualSettlement"
+    [isAlertOpen]="true"
+    [title]="'Årsoppgave - oppsummering før innsending'"
+    [completeLabel]="'Send til Altinn'"
+    [icon]="'info'"
+    [outlinedIcon]="false"
+    [disableCompleteButton]="false"
+    [alert]="infoData"
+    [tabTitle]="'Årsavslutning oppsumering'"
+    (clickCompleteButton)="completeSummary($event)"
+>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <ng-container *ngIf="!busy">
+    <summary-detail-component *ngFor="let data of summary"
+                                   [title]="data.title"
+                                   [data]="data.items"
+    ></summary-detail-component>
+    </ng-container>
+</uni-annual-settlement-header-component>

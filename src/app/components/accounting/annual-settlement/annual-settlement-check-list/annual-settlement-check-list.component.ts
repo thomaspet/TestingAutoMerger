@@ -1,0 +1,137 @@
+import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
+import {infoOption, options, optionsForASAndOthers, optionsForENK} from './checklistoptions';
+import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
+
+@Component({
+    selector: 'annual-settlement-check-list-component',
+    templateUrl: './annual-settlement-check-list.component.html',
+    styleUrls: ['./annual-settlement-check-list.component.sass'],
+    encapsulation: ViewEncapsulation.None
+})
+export class AnnualSettlementCheckListComponent {
+    onDestroy$ = new Subject();
+    options = options;
+    infoOption = infoOption;
+    check = false;
+    showInfoBox = true;
+    showMvaBox = true;
+    annualSettlement;
+    nextOption = 0;
+    areAllOptionsChecked = false;
+    busy = false;
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private annualSettlementService: AnnualSettlementService,
+        private tabService: TabService,
+        private toast: ToastService,
+        private companySettingsService: CompanySettingsService,
+        private changeDetector: ChangeDetectorRef) {}
+    ngOnInit() {
+        this.busy = true;
+        this.route.params.pipe(
+            takeUntil(this.onDestroy$),
+            map((params) => params.id)
+        ).subscribe(id => {
+            this.annualSettlementService.getAnnualSettlement(id).pipe(
+                switchMap(as => this.annualSettlementService.getAnnualSettlementWithCheckList(as)),
+                tap(as => this.annualSettlement = as),
+                switchMap(as => this.companySettingsService.getCompanySettings())
+            ).subscribe(settings => {
+                if (settings.CompanyTypeID === 1) {
+                    this.options = optionsForENK();
+                } else {
+                    this.options = optionsForASAndOthers();
+                }
+                this.initOptions();
+                this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
+                this.busy = false;
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
+        });
+    }
+
+    completeCheckListStep(done) {
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
+            switchMap(() => this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement))
+        ).subscribe(() => {
+            this.router.navigateByUrl('/accounting/annual-settlement');
+        }, (err) => {
+            const message = err && err.error && err.error.Messages && err.error.Messages.length > 0 && err.error.Messages[0].Message;
+            this.toast.addToast('Error in Transition', ToastType.warn, ToastTime.medium, err.message + ' - ' + message);
+        }, () => {
+            if (done) {
+                done();
+            }
+        });
+    }
+
+    saveAnnualSettlement(done) {
+        this.busy = true;
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
+            .subscribe((as) => {
+                this.annualSettlement = as;
+                this.busy = false;
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => {
+                if (done) {
+                    done();
+                }
+                this.busy = false;
+            });
+    }
+
+    initOptions() {
+        this.options = this.options.map((op: any) => {
+            op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
+            return op;
+        });
+        this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
+        this.changeDetector.detectChanges();
+    }
+
+    updateOption(option, value) {
+        const prefix = 'as_';
+        if (option.property) {
+            option.checked = value.checked;
+            sessionStorage.setItem(prefix + option.property, value);
+            this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
+        }
+        this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
+        this.changeDetector.detectChanges();
+    }
+
+    setNextOption(_options) {
+        let stopLooking = false;
+        _options.forEach((op: any, index: number) => {
+            if (!op.checked && !stopLooking) {
+                stopLooking = true;
+                this.nextOption = index;
+            }
+        });
+        if (stopLooking === false) {
+            this.nextOption = _options.length;
+        }
+    }
+
+    checkIfAreAllOptionsChecked() {
+        return this.options.reduce((result: boolean, option: any) => result && option.checked, true);
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
+    }
+}

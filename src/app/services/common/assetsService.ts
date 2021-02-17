@@ -90,6 +90,38 @@ export class AssetsService extends BizHttp<Asset>{
         );
     }
 
+    getWriteOfAssetsList() {
+        return this.GetAction(null, 'get-assets-for-accountingbasedIB-update', 'year=2020')
+    }
+
+    updateAssetsList(list: any[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/assets?action=update_accountingbasedIB')
+            .withBody(list)
+            .send()
+            .map(res => res.body);
+    }
+
+    bookWriteOf(year: number) {
+        return this.PutAction(null, 'depreciate-year', `year=${year}`);
+    }
+
+    updateRealEstatesAssetsList(list: any[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/assets?action=update-real-estate-assets')
+            .withBody(list)
+            .send()
+            .map(res => res.body);
+    }
+
+    getENKAssetsList(year: number, onlyRealEstatesPurchasedBefore1984: boolean) {
+        return this.GetAction(null, 'get-real-estate-assets', 'year=' + year + '&onlyRealEstatesPurchasedBefore1984=' + onlyRealEstatesPurchasedBefore1984);
+    }
+
     getAssetCountersByType(code?: number | null) {
         let statusCode = '';
         if (code) {

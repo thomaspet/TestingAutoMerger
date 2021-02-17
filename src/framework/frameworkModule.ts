@@ -44,6 +44,10 @@ import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
 import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
 import {SimpleTable} from './ui/simple-table/simple-table';
+import {UniOptionsListComponent} from '@uni-framework/ui/options-list/options-list.component';
+import {UniCustomListComponent} from '@uni-framework/ui/custom-list/custom-list.component';
+import {UniCustomListItemComponent} from '@uni-framework/ui/custom-list/custom-list-item.component';
+import {UniAlertModule} from '@uni-framework/ui/alert/alert.module';
 
 @NgModule({
     imports: [
@@ -62,7 +66,8 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
-        UniIconModule
+        UniIconModule,
+        UniAlertModule
     ],
     declarations: [
         UniComponentLoader,
@@ -84,6 +89,9 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         AutoFocusDirective,
         UniFileUpload,
         SimpleTable,
+        UniOptionsListComponent,
+        UniCustomListComponent,
+        UniCustomListItemComponent,
         ...MODALS
     ],
     providers: [
@@ -112,6 +120,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         AutocompleteModule,
         DatepickerModule,
         MonthPicker,
+        UniAlertModule,
 
         UniModal,
         UniSave,
@@ -132,6 +141,9 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         AutoFocusDirective,
         UniFileUpload,
         SimpleTable,
+        UniOptionsListComponent,
+        UniCustomListComponent,
+        UniCustomListItemComponent,
     ]
 })
 export class UniFrameworkModule {}

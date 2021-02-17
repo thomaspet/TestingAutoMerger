@@ -66,6 +66,7 @@ export enum UniModules {
     CostAllocation  = 317,
     Inbox           = 318,
     BalanceSearch   = 319,
+    AnnualSettlement = 320,
 
     Bank            = 450,
     Payment         = 451,

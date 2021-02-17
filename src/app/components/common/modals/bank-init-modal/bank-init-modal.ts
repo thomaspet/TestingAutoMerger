@@ -155,23 +155,38 @@ export class BankInitModal implements IUniModal, OnInit {
             this.dataLoaded = true;
             this.busy = false;
         }, err => {
-            // Should just redirect back?
             this.busy = false;
         });
     }
 
     next() {
-        if (!this.checkNextStepValid()) {
-            return;
+
+        const onStep = () => {
+            if (!this.checkNextStepValid()) {
+                return;
+            }
+            if (this.steps === 1 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+                this.steps += 2;
+            } else {
+                this.steps++;
+            }
+            this.errorMsg = '';
+            if (this.steps >= 3 && this.steps <= 5) {
+                this.fields$.next(this.setUpUniForm());
+            }
         }
-        if (this.steps === 1 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
-            this.steps += 2;
+
+        if (this.isDirty) {
+            this.saveAccount().subscribe((companySettings) => {
+                this.toastService.addToast(this.accounts[this.steps - 3].label + ' oppdatert i firmaoppsett', ToastType.good, 5);
+                this.reloadCompanySettings();
+                this.isDirty = false;
+                onStep();
+            }, err => {
+                this.busy = false;
+            });
         } else {
-            this.steps++;
-        }
-        this.errorMsg = '';
-        if (this.steps >= 2 && this.steps <= 5) {
-            this.fields$.next(this.setUpUniForm());
+            onStep();
         }
     }
 
@@ -208,21 +223,14 @@ export class BankInitModal implements IUniModal, OnInit {
 
         const stringValueFromStep = ['CompanyBankAccount', 'SalaryBankAccount', 'TaxBankAccount'];
 
-        if (this.companySettings$.value[stringValueFromStep[this.steps - 1] + 'ID']) {
-            objToSave[stringValueFromStep[this.steps - 1] + 'ID'] = this.companySettings$.value[stringValueFromStep[this.steps - 1] + 'ID'];
+        if (this.companySettings$.value[stringValueFromStep[this.steps - 3] + 'ID']) {
+            objToSave[stringValueFromStep[this.steps - 3] + 'ID'] = this.companySettings$.value[stringValueFromStep[this.steps - 3] + 'ID'];
         } else {
-            objToSave[stringValueFromStep[this.steps - 1]] = this.companySettings$.value[stringValueFromStep[this.steps - 1]];
-            objToSave[stringValueFromStep[this.steps - 1] + 'ID'] = null;
+            objToSave[stringValueFromStep[this.steps - 3]] = this.companySettings$.value[stringValueFromStep[this.steps - 3]];
+            objToSave[stringValueFromStep[this.steps - 3] + 'ID'] = null;
         }
         this.busy = true;
-        this.companySettingsService.Put(this.companySettings$.value.ID, objToSave).subscribe((companySettings) => {
-
-            this.toastService.addToast(this.accounts[this.steps - 1].label + ' oppdatert i firmaoppsett', ToastType.good, 5);
-            this.reloadCompanySettings();
-            this.isDirty = false;
-        }, err => {
-            this.busy = false;
-        });
+        return this.companySettingsService.Put(this.companySettings$.value.ID, objToSave);
     }
 
     postAutobankUser() {
@@ -258,7 +266,7 @@ export class BankInitModal implements IUniModal, OnInit {
 
                 agreement.PreApprovedBankPayments = 700003;
             }
-            this.bankService.orderPreApprovedBankPayments(this.companySettings.CompanyBankAccount.BankID).subscribe();
+            this.bankService.orderPreApprovedBankPayments(this.companySettings.CompanyBankAccount.BankID, false).subscribe();
         }
     }
 

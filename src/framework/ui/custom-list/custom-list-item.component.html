@@ -1,0 +1,8 @@
+<section class="custom-list-item-container">
+    <div class="custom-list-item-status">
+        <ng-container *ngTemplateOutlet="stepButtonTemplate;context:{item:step}"></ng-container>
+    </div>
+    <div class="custom-list-item-content">
+        <ng-container *ngTemplateOutlet="stepCardTemplate;context:{item:step}"></ng-container>
+    </div>
+</section>

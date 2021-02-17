@@ -19,5 +19,9 @@
     "APP_INSIGHTS_KEY": "27061a10-d40b-4e95-a6f1-8a9ce98b013a",
 
     "PUBLIC_FILES_URL": "https://test-public-files.softrig.com",
-    "LICENSE_AGREEMENT_URL": "https://test-public-files.softrig.com/files/license/Lisensavtale_UniEconomy_v2.pdf"
+    "LICENSE_AGREEMENT_URL": "https://test-public-files.softrig.com/files/license/Lisensavtale_UniEconomy_v2.pdf",
+    "ID_PORTEN": {
+        "authority": "https://oidc-ver2.difi.no/idporten-oidc-provider/",
+        "client_id": "213d95cf-9f5a-4ea2-b3a8-e45fee9248c5"
+    }
 }

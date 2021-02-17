@@ -1,0 +1,41 @@
+annual-settlement-steps-component
+    width: 100%
+uni-custom-list-item
+    &.checked h6
+        margin: 0 !important
+    &.disabled
+        button.c2a
+            display: none
+    .step-number
+        font-style: normal !important
+    .custom-list-item-container
+        .custom-list-item-status
+            .custom-list-item-status-step
+                border: 1px solid var(--dropdown-select-background)
+                background: var(--dropdown-select-background)
+                border-radius: 50%
+                height: 2rem
+                width: 2rem
+                position: relative
+                &.checked
+                    border: 0
+                    background: none
+                    i.material-icons
+                        color: var(--checkbox-checked-background-good)
+                        font-size: 2.1rem
+                        bottom: 0.7rem !important
+                i
+                    position: relative
+                    left: 8px
+                    top: 3px
+
+                i.material-icons
+                    font-size: 20px
+                    left: 4px
+                    top: 1px
+
+@media screen and (min-width: 1300px)
+    uni-custom-list .custom-list-item-container .custom-list-item-status
+        .custom-list-item-status-step i.material-icons
+            left: 4px
+            top: 2px

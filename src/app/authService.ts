@@ -43,7 +43,8 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
-    'dashboard-new'
+    'dashboard-new',
+    'accounting' // TODO: Remove before merge
 ];
 
 const PUBLIC_ROUTES = [];

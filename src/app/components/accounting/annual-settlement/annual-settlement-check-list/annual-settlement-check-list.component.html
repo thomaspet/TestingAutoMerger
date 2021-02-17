@@ -1,0 +1,43 @@
+<uni-annual-settlement-header-component
+    [annualSettlement]="annualSettlement"
+    [isAlertOpen]="true"
+    [title]="'Sjekkliste for årsavslutning'"
+    [completeLabel]="'Sjekkliste fullført'"
+    [icon]="'info'"
+    [outlinedIcon]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36100 || !areAllOptionsChecked"
+    [saveButtonLabel]="'Lagre'"
+    [alert]="infoOption"
+    [tabTitle]="'Årsavslutning sjekkliste'"
+    (clickCompleteButton)="completeCheckListStep($event)"
+    (clickSaveButton)="saveAnnualSettlement($event)"
+>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <uni-custom-list *ngIf="!busy">
+        <uni-custom-list-item *ngFor="let option of options; let i = index" [step]="option"
+                              [class.checked]="option?.checked"
+                              [class.disabled] = "annualSettlement?.StatusCode > 36100
+                                        || (nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
+                                        || (nextOption === options.length && i < options.length - 1)">
+            <ng-template #stepButtonTemplate let-item="item">
+                <mat-checkbox [ngModel]="option?.checked"
+                              (change)="updateOption(option, $event)"
+                              [disabled]="annualSettlement?.StatusCode > 36100
+                                                || (nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
+                                                || (nextOption === options.length && i < options.length - 1)"
+                ></mat-checkbox>
+            </ng-template>
+            <ng-template #stepCardTemplate let-item="item">
+                <h6 class="custom-list-item-title">
+                    {{item?.checked ? (item?.altTitle || item?.title) : item?.title}}
+                </h6>
+                <article
+                    class="custom-list-item-content"
+                    [innerHTML]="item.text" *ngIf="!item?.checked"
+                ></article>
+            </ng-template>
+        </uni-custom-list-item>
+    </uni-custom-list>
+</uni-annual-settlement-header-component>

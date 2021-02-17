@@ -233,6 +233,11 @@ export let NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
+                        name: 'NAVBAR.ANNUAL_SETTLEMENT',
+                        url: '/accounting/annual-settlement',
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.ASSETS',
                         url: '/accounting/assets',
                         activeInSidebar: true

@@ -5,6 +5,7 @@ import {HttpParams, HttpResponse} from '@angular/common/http';
 
 import {Observable} from 'rxjs';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class StatisticsService extends BizHttp<string> {
@@ -46,13 +47,15 @@ export class StatisticsService extends BizHttp<string> {
             .asGET()
             .withEndPoint(this.relativeURL + '?' + queryString)
             .send({}, undefined, !companyKey)
-            .map(response => {
-                const obj = response.body;
-                if (!obj.Success) {
-                    throw new Error(obj.Message);
-                }
-                return obj;
-            });
+            .pipe(
+                map(response => {
+                    const obj = response.body;
+                    if (!obj.Success) {
+                        throw new Error(obj.Message);
+                    }
+                    return obj;
+                })
+            );
     }
 
     public GetHttp(): UniHttp {
@@ -60,8 +63,9 @@ export class StatisticsService extends BizHttp<string> {
     }
 
     public GetAllUnwrapped(queryString: string): Observable<any[]> {
-        return this.GetAll(queryString)
-            .map(response => response.Data);
+        return this.GetAll(queryString).pipe(
+            map(response => response.Data)
+        );
     }
 
     public GetAllByHttpParams<T>(params: HttpParams, distinct = false, companyKey?: string): Observable<HttpResponse<any>> {

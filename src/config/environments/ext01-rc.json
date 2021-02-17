@@ -18,5 +18,9 @@
     "APP_INSIGHTS_KEY": "a9d1f453-33ca-45e7-8223-e8d722c3a99d",
 
     "PUBLIC_FILES_URL": "https://public-files.regnskap.sr-bank.no",
-    "LICENSE_AGREEMENT_URL": "https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf"
+    "LICENSE_AGREEMENT_URL": "https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf",
+    "ID_PORTEN": {
+        "authority": "https://oidc-ver2.difi.no/idporten-oidc-provider/",
+        "client_id": "213d95cf-9f5a-4ea2-b3a8-e45fee9248c5"
+    }
 }
