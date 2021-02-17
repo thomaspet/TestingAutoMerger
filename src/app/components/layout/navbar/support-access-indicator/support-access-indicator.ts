@@ -5,6 +5,7 @@ import {AuthService} from '@app/authService';
 import {SignalRService} from '@app/services/common/signal-r.service';
 import {trigger, style, transition, animate, state, group} from '@angular/animations';
 import {ElsaSupportUserDTO} from '@app/models';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'support-access-indicator',
@@ -39,6 +40,8 @@ export class SupportAccessIndicator {
 
     isAdmin = false;
 
+    companyChangeSubscription: Subscription;
+
     constructor(
         private authService: AuthService,
         private elsaContractService: ElsaContractService,
@@ -50,9 +53,17 @@ export class SupportAccessIndicator {
     ) {}
 
     ngOnInit() {
+        this.checkSupportUsers();
+
+        this.companyChangeSubscription = this.authService.companyChange.subscribe(() => {
+            this.checkSupportUsers();
+        });
+    }
+
+    checkSupportUsers() {
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID).subscribe(isAdmin => {
             this.isAdmin = isAdmin;
-            this.checkForSupportUsers();
+            this.getSupportUsers();
         });
 
         this.signalRService.pushMessage$.subscribe((message: any) => {
@@ -62,7 +73,7 @@ export class SupportAccessIndicator {
                     && message.cargo.entityType === 'User'
                     && message.cargo.message.toLowerCase().startsWith('support user')
                 ) {
-                    this.checkForSupportUsers();
+                    this.getSupportUsers();
                 }
             }
         });
@@ -70,9 +81,10 @@ export class SupportAccessIndicator {
 
     ngOnDestroy() {
         this.signalRService.pushMessage$.unsubscribe();
+        this.companyChangeSubscription.unsubscribe();
     }
 
-    checkForSupportUsers() {
+    getSupportUsers() {
         this.elsaContractService.getSupportUsers().subscribe(users => {
             this.supportUsers = users.filter(su => su.StatusCode === 110001); // Active
             if (this.supportUsers[0]) {
@@ -96,7 +108,7 @@ export class SupportAccessIndicator {
                 `${userToBeDeactivatedEmail} har ikke lenger tilgang til selskapet ditt`
             );
             this.showDialog = false;
-            this.checkForSupportUsers();
+            this.getSupportUsers();
         });
     }
 
