@@ -470,7 +470,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
 
             if (!this.agreementDetails.BankApproval) {
-                this.bankService.orderPreApprovedBankPayments(this.bankID).subscribe();
+                this.bankService.orderPreApprovedBankPayments(this.bankID, false).subscribe();
             }
             this.buttonLock = false;
             this.steps = 6;

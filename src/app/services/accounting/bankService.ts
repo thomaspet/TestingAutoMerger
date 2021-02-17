@@ -334,11 +334,11 @@ export class BankService extends BizHttp<Bank> {
             .map(response => response.body);
     }
 
-    public orderPreApprovedBankPayments(bankID: number) {
+    public orderPreApprovedBankPayments(bankID: number, cancel: boolean) {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint('/bank-agreements?action=order-preapprovedbankpayments&bankID=' + bankID)
+            .withEndPoint('/bank-agreements?action=order-preapprovedbankpayments&bankID=' + bankID + '&cancel=' + cancel)
             .send()
             .map(response => response.body);
     }
