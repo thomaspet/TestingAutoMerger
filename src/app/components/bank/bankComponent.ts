@@ -363,6 +363,7 @@ export class BankComponent {
 
                     if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                            this.unfilteredAgreements = agreements;
                             if (theme.theme === THEMES.SR) {
                                 if (agreements && agreements.length) {
                                     this.agreements = agreements;
@@ -609,8 +610,8 @@ export class BankComponent {
         if (this.hasAccessToAutobank && (this.isAutobankAdmin || this.isAdmin || !this.agreements?.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
 
-            // Unavailable for both SR and Bruno
-            if (theme.theme === THEMES.UE && this.isAutobankAdmin) {
+            // Not available for Bruno
+            if (theme.theme !== THEMES.EXT02 && this.isAutobankAdmin) {
                 items.push({
                     label: 'Ny autobankavtale',
                     action: () => this.openAutobankAgreementModal(),
