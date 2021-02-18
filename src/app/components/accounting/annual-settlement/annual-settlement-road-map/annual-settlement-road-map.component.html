@@ -20,10 +20,25 @@
             <img src="config/dist/theme/assets/annual-settlement-not-allowed.svg" alt="annual settlement not allowed for year {{currentYear}}"/>
         </article>
     </section>
-    <section *ngIf="!annualSettlementAllowedByType" class="uni-container">
+    <section *ngIf="!annualSettlementAllowedByType && !isENKCompany" class="uni-container">
         <article>
             <h2>Årsavslutning er ikke tilgjengelig for din firmatype</h2>
             <p>Årsavslutning er kun tilgjengelig for firmatypene AS, ASA, Stiftelse og NUF.</p>
+        </article>
+        <article class="with-image">
+            <img src="config/dist/theme/assets/annual-settlement-not-allowed.svg" alt="annual settlement not allowed for current company type"/>
+        </article>
+    </section>
+    <section *ngIf="!annualSettlementAllowedByType && isENKCompany" class="uni-container">
+        <article>
+            <h2>Årsavslutning er ikke tilgjengelig for din firmatype</h2>
+            <p>
+                Årsavslutning for Enkeltpersonforetak (ENK) vil bli tilgjengelig rundt midten av april.
+                Innrapportering av årsavslutning for ENK benytter Skatteetaten sin nye løsning for skattemelding.
+                <a href="https://www.skatteetaten.no/bedrift-og-organisasjon/skatt/skattemelding-naringsdrivende/ny-skattemelding/">
+                    Les mer om ny skattemelding for næringsdrivende her
+                </a>
+            </p>
         </article>
         <article class="with-image">
             <img src="config/dist/theme/assets/annual-settlement-not-allowed.svg" alt="annual settlement not allowed for current company type"/>
