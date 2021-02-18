@@ -225,9 +225,9 @@ export class BankInitModal implements IUniModal, OnInit {
         const stringValueFromStep = ['CompanyBankAccount', 'SalaryBankAccount', 'TaxBankAccount'];
 
         if (this.companySettings$.value[stringValueFromStep[this.steps - 3] + 'ID']) {
-            objToSave[stringValueFromStep[this.steps - 3] + 'ID'] = this.companySettings$.value[stringValueFromStep[this.steps - 1] + 'ID'];
+            objToSave[stringValueFromStep[this.steps - 3] + 'ID'] = this.companySettings$.value[stringValueFromStep[this.steps - 3] + 'ID'];
         } else {
-            objToSave[stringValueFromStep[this.steps - 3]] = this.companySettings$.value[stringValueFromStep[this.steps - 1]];
+            objToSave[stringValueFromStep[this.steps - 3]] = this.companySettings$.value[stringValueFromStep[this.steps - 3]];
             objToSave[stringValueFromStep[this.steps - 3] + 'ID'] = null;
         }
         this.busy = true;
