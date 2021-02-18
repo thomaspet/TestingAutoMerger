@@ -524,12 +524,20 @@ export class AnnualSettlementService extends BizHttp<any> {
             );
     }
     checkIfCompanyIsAllowedByType() {
-        const allowedNames = ['AS', 'ASA', 'NUF']; // , 'ENK', 'STI'];
+        const allowedNames = ['AS', 'ASA', 'NUF', 'STI']; // , 'ENK'];
         const companySettings$ = this.getCompanySettings();
         return companySettings$.pipe(
             switchMap((settings: CompanySettings) => this.getCompanyTypeName(settings.CompanyTypeID)),
             tap((name) => this.companyName = name),
             map(name => !!allowedNames.find(item => item === name))
+        );
+    }
+    checkIfIsENKCompany() {
+        const companySettings$ = this.getCompanySettings();
+        return companySettings$.pipe(
+            switchMap((settings: CompanySettings) => this.getCompanyTypeName(settings.CompanyTypeID)),
+            tap((name) => this.companyName = name),
+            map((name: string) => (name || '').toUpperCase() === 'ENK')
         );
     }
     cleanSessionData() {

@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {BehaviorSubject, of} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {switchMap, tap} from 'rxjs/operators';
+import {map, switchMap, tap} from 'rxjs/operators';
 import steps from './annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
@@ -21,6 +21,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     busy = false;
     annualSettlementAllowedByYear = true;
     annualSettlementAllowedByType = true;
+    isENKCompany = false;
     currentYear;
     constructor(
         private annualSettlementService: AnnualSettlementService,
@@ -75,9 +76,15 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
         );
         this.annualSettlementService.checkIfCompanyIsAllowedByType().pipe(
             switchMap((result: boolean) => {
+                return this.annualSettlementService.checkIfIsENKCompany().pipe(
+                    tap((isENKCompany: boolean) => this.isENKCompany = isENKCompany),
+                    map((isENKCompany: boolean) => result) // update isENKCompany and continue
+                );
+            }),
+            switchMap((result: boolean) => {
                 this.annualSettlementAllowedByType = result;
                 return result ? annualSettlementSource$ : of(null);
-            })
+            }),
         ).subscribe((as) => {
             if (!as) {
                 this.selectedAnnualSettlement$.next(null);
