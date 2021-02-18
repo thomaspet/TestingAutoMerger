@@ -40,7 +40,8 @@ export class BankInitModal implements IUniModal, OnInit {
          IsOutgoing: true,
          IsBankBalance: true,
          IsBankStatement: true,
-         BankApproval: true
+         BankApproval: true,
+         ServiceProvider: BankAgreementServiceProvider.ZData
     };
     currentUser: UserDto;
     agreement: any;
@@ -112,6 +113,7 @@ export class BankInitModal implements IUniModal, OnInit {
             this.forceSameBank = !!contracttype?.ForceSameBank;
             this.bankAgreementUrl = this.sanitizer.bypassSecurityTrustResourceUrl(agreement?.DownloadUrl);
             this.serviceProvider = defaultServiceProvider;
+            this.payload.ServiceProvider = defaultServiceProvider;
         });
 
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
@@ -160,7 +162,6 @@ export class BankInitModal implements IUniModal, OnInit {
     }
 
     next() {
-
         const onStep = () => {
             if (!this.checkNextStepValid()) {
                 return;

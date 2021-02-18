@@ -21,8 +21,8 @@ export class ApiStatus {
         this.http.get<any[]>('/api/status').subscribe(
             res => {
                 this.statuses = (res || []).sort((a, b) => a.Type - b.Type).filter(status => {
-                    return (!status.FromDate || moment(status.FromDate).isBefore(moment()))
-                        && (!status.ToDate || moment(status.ToDate).isAfter(moment()));
+                    return (!status.FromDate || moment(status.FromDate).isSameOrBefore(moment(), 'day'))
+                        && (!status.ToDate || moment(status.ToDate).isSameOrAfter(moment(), 'day'));
                 });
 
                 this.cdr.markForCheck();
