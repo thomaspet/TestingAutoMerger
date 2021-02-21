@@ -113,7 +113,9 @@ export class ZDataPaymentService {
                         this.toastService.addToast('Sendt til bank', ToastType.good, 8, `Betalingsbunt er opprettet og sendt til bank`);
                         resolve(true);
                     }, err => {
-                        this.errorService.handleWithMessage(err, 'Betaling ble opprettet, men kunne ikke sende den til banken. Gå til Bank - Utbetalinger og send den på nytt.');
+                        this.toastService.addToast('Kunne ikke sende til bank', ToastType.warn, 15, 
+                            'Betaling ble opprettet, men kunne ikke sende den til banken. Gå til Bank - Utbetalinger og send den på nytt.');
+                        this.errorService.handle(err);
                         resolve(false);
                     });
                 } else {
