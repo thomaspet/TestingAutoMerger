@@ -209,6 +209,10 @@ export class ToPaymentModal implements IUniModal {
                     if (this.isZDataV3 && this.useTwoFactor) {
                         this.paymentService.createPaymentBatch([payment.ID], false).subscribe((paymentBatch) => {
                             this.onClose.emit(new ActionContinueWithTwoFactor(paymentBatch));
+                        }, err => {
+                            this.busy = false;
+                            this.errorMessage = 'Kunne ikke opprette betalingsbunt';
+                            this.errorSerivce.handle(err);
                         });
                     }
                     else

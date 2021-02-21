@@ -176,8 +176,8 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                     this.toastService.addToast('Kunne ikke sende til bank', ToastType.warn, 15,
                         'Vi har opprettet betalingsbunt, men klarte ikke sende den til bank. Betalingene er '
                         + 'flyttet til Under behandling fanen. Gå til Utbetalingsbunter for tilbakestille bunt og '
-                        + 'behandle betalinger igjen, eller prøve å sende den på nytt.'
-                        + (err?.error?.Message ? ' ' + err.error.Message : ''));
+                        + 'behandle betalinger igjen, eller prøve å sende den på nytt.');
+                    this.errorService.handle(err);
                     this.onClose.emit(true);
                 });
             }

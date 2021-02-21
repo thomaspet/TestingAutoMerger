@@ -1905,6 +1905,11 @@ export class BankComponent {
                             this.tickerContainer.mainTicker.reloadData();
                             this.tickerContainer.mainTicker.table.clearSelection();
                             doneHandler('');
+                        }, err => {
+                            this.toastService.addToast('Kunne ikke sende til bank', ToastType.warn, 15,
+                                'Betaling ble opprettet, men kunne ikke sende den til banken. Gå til Bank - Utbetalinger og send den på nytt.');
+                            this.errorService.handle(err);
+                            doneHandler('Feil ved sending av betaling');
                         });
                     }
                 },
