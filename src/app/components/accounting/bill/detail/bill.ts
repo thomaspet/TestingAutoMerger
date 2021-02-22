@@ -740,30 +740,23 @@ export class BillView implements OnInit, AfterViewInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>, forceNewAnalysis: boolean) {
-        if (this.companySettings.UseOcrInterpretation) {
-            // user has accepted license/agreement for ocr
-            this.runOcrOrEHF(files, forceNewAnalysis);
-        } else {
-            // user has deactivated license/agreement for ocr
-            const modal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Fakturatolkning er ikke aktivert',
-                message: 'Vennligst aktiver fakturatolkning i Markedsplassen for å benytte tolkning av fakturaer',
-                buttonLabels: {
-                    accept: 'Ok',
-                    cancel: 'Avbryt'
-                }
-            });
-        }
-    }
+    private runOcrOrEHF(files: Array<any>, forceNewAnalysis: boolean) {
+        const file = this.uniImage.getCurrentFile() || files[0];
 
-    private runOcrOrEHF(files: Array<any>, forceNewAnalysis: boolean = false) {
-        if (files && files.length > 0) {
-            const file = this.uniImage.getCurrentFile() || files[0];
-            if (this.supplierInvoiceService.isOCR(file)) {
+        if (this.supplierInvoiceService.isEHF(file)) {
+            this.runEHF(file);
+        } else if (this.supplierInvoiceService.isOCR(file)) {
+            if (this.companySettings.UseOcrInterpretation) {
                 this.runOcr(file, forceNewAnalysis);
-            } else if (this.supplierInvoiceService.isEHF(file)) {
-                this.runEHF(file);
+            } else {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Fakturatolkning er ikke aktivert',
+                    message: 'Vennligst aktiver fakturatolkning i Markedsplassen for å benytte tolkning av fakturaer',
+                    buttonLabels: {
+                        accept: 'Ok',
+                        cancel: 'Avbryt'
+                    }
+                });
             }
         }
     }
@@ -995,7 +988,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
-                this.runConverter(files, false);
+                this.runOcrOrEHF(files, false);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
@@ -4179,7 +4172,7 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 label: 'Kjør tolk (OCR/EHF)',
-                action: () => { this.runConverter(this.files, true); }
+                action: () => { this.runOcrOrEHF(this.files, true); }
             },
             {
                 label: 'Kjør smart bokføring',
