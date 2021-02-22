@@ -55,7 +55,7 @@
 
             <section class="center-section">
 
-                <span class="top-center-imbalance-warning">
+                <span class="top-center-imbalance-warning" *ngIf="session?.totalImbalance">
                     <i class="material-icons">warning</i>
                     Avvik i saldo: {{session.totalImbalance | uninumberformat: 'money' || '0.00'}}
                 </span>
