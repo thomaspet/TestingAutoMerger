@@ -112,7 +112,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 			title: 'Gevinst og tap',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+				på dette firmaet, anbefaler vi deg å bruke RF-1219 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 4,
 			summaryTitle: 'Sum inngående balanse gevinst og tap'
@@ -532,7 +532,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.infoContent.diff = 0;
 				} else if (this.ct.value === 1) {
 					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0) 
-						+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0);
+						- parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0);
 				} else if (this.ct.value === 2) {
 					this.infoContent.diff = 0;
 				}
