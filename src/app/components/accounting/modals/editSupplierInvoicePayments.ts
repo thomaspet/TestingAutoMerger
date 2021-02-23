@@ -69,6 +69,7 @@ export class EditSupplierInvoicePayments implements IUniModal {
         + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
         + `payment.JournalEntryID as JournalEntryID`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and `
+        + `DestinationEntityName eq 'Payment' and `
         + `SourceInstanceID eq ${this.supplierInvoiceID} and `
         + `Payment.ID gt 0`
         + `&join=Tracelink.DestinationInstanceId eq Payment.ID and `

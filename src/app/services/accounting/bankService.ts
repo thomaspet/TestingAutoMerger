@@ -151,6 +151,7 @@ export class BankService extends BizHttp<Bank> {
         + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
         + `payment.JournalEntryID as JournalEntryID,CurrencyCode.Code as CurrencyCode`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and `
+        + `DestinationEntityName eq 'Payment' and `
         + `SourceInstanceID eq ${id} and Payment.ID gt 0 and Payment.BusinessRelationID eq Supplier.BusinessRelationID `
         + `&join=Tracelink.DestinationInstanceId eq Payment.ID and Tracelink.SourceInstanceID eq SupplierInvoice.ID and `
         + `Payment.BusinessRelationID eq BusinessRelation.ID and SupplierInvoice.SupplierID eq Supplier.ID and `
