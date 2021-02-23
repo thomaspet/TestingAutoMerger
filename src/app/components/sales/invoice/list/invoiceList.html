@@ -9,6 +9,21 @@
     [actionOverrides]="actionOverrides"
     [columnOverrides]="columnOverrides"
     [disableSubTickers]="true"
+    [tableFilters]="tableFilters"
     (rowSelected)="onRowSelected($event)"
 >
 </uni-ticker-wrapper>
+
+<section
+    class="details-backdrop"
+    *ngIf="showMassInvoiceList"
+    (click)="closeMassInvoice()">
+
+    <mass-invoice-list
+        [@slideInOut]
+        (close)="closeMassInvoice($event)"
+        (click)="$event.stopPropagation()"
+    >
+    </mass-invoice-list>
+
+</section>

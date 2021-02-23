@@ -1,7 +1,7 @@
-import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import {switchMap, map, take, tap, finalize, flatMap, catchError, filter} from 'rxjs/operators';
+import {switchMap, map, take, tap, flatMap, catchError, filter} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -21,6 +21,7 @@ import {
     Department,
     User,
     StatusCodeCustomerInvoiceReminder,
+    BatchInvoice,
 } from '@uni-entities';
 
 import {
@@ -49,7 +50,8 @@ import {
     ModulusService,
     AccrualService,
     AccountMandatoryDimensionService,
-    ElsaPurchaseService
+    ElsaPurchaseService,
+    MassInvoiceService
 } from '@app/services/services';
 
 import {
@@ -90,7 +92,8 @@ import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-moda
 import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {THEMES, theme} from 'src/themes/theme';
-import { ToolbarSharingStatus } from '@app/components/common/toolbar/sharing-status/sharing-status';
+import { MultipleCustomerSelection } from '@app/components/common/modals/selectCustomersModal';
+import { MassInvoiceWizardModal } from '../../common/massInvoiceWizardModal/mass-invoice-wizard';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -157,6 +160,7 @@ export class InvoiceDetails implements OnInit {
     distributionPlans: any[];
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
+    customers: Array<MultipleCustomerSelection>;
 
     isDistributable = false;
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
@@ -252,6 +256,7 @@ export class InvoiceDetails implements OnInit {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private elsaPurchaseService: ElsaPurchaseService,
         private featurePermissionService: FeaturePermissionService,
+        private massInvoiceService: MassInvoiceService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -280,6 +285,7 @@ export class InvoiceDetails implements OnInit {
             const customerID = +params['customerID'];
             const projectID = +params['projectID'];
             const hasCopyParam = params['copy'];
+            const hasBatchWizardParam = params['batchwizard'];
 
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
@@ -460,6 +466,10 @@ export class InvoiceDetails implements OnInit {
                         });
                     }
 
+                    if (hasBatchWizardParam) {
+                        this.massInvoiceWizard(() => {}, invoice, false);
+                    }
+
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
@@ -590,6 +600,42 @@ export class InvoiceDetails implements OnInit {
         return true;
     }
 
+    public onMultipleCustomers(customers: Array<MultipleCustomerSelection>): void {
+        if (customers?.length > 1) {
+            this.customers = customers;
+            this.currentCustomer = null;
+        }
+        else if (customers?.length === 1) {
+            this.customers = [];
+            Observable.forkJoin([
+                this.customerService.Get(customers[0].ID, this.customerExpands),
+                this.customerService.getCustomerDistributions(customers[0].ID)
+            ]).subscribe(
+                res => {
+                    this.customerDistributions = res[1].filter(d => d.IsValid);
+                    this.invoice = this.tofHelper.mapCustomerToEntity(res[0], this.invoice);
+                    this.invoice = cloneDeep(this.invoice);
+                    this.currentCustomer = this.invoice.Customer;
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.customerDistributions = [];
+                    this.tofHelper.mapCustomerToEntity(null, this.invoice);
+                    this.invoice = cloneDeep(this.invoice);
+                    this.currentCustomer = this.invoice.Customer;
+                });
+        }
+        else {
+            this.customers = [];
+            this.customerDistributions = [];
+            this.tofHelper.mapCustomerToEntity(null, this.invoice);
+            this.invoice = cloneDeep(this.invoice);
+            this.currentCustomer = this.invoice.Customer;
+        }
+        this.onInvoiceChange(this.invoice);
+        this.updateSaveActions();
+    }
+
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
@@ -651,7 +697,7 @@ export class InvoiceDetails implements OnInit {
         this.currentInvoiceDate = invoice.InvoiceDate;
 
         if (
-            customerChanged && this.currentCustomer &&
+            customerChanged && this.currentCustomer && this.customers?.length <= 1 &&
             this.currentCustomer['Distributions'] &&
             this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID
         ) {
@@ -1398,6 +1444,7 @@ export class InvoiceDetails implements OnInit {
             });
         }
 
+        
         if ((this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced
             || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid
             || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid)
@@ -1438,6 +1485,31 @@ export class InvoiceDetails implements OnInit {
                     done();
                 }
             });
+        }
+
+        if (!this.customers?.length && this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
+            this.saveActions.push({
+                label: `Send faktura til flere`,
+                main: theme.theme !== THEMES.EXT02
+                    ? this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced
+                    : this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced && this.companySettings.HasAutobank,
+                disabled: !this.isFormValid || !this.invoiceItems?.some(item => item.ProductID),
+                action: (done) => {
+                    if (this.invoice.DistributionPlanID) {
+                        const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                        if (currentPlan && (!currentPlan.Elements || !currentPlan.Elements.length)) {
+                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
+                                + 'Fjern denne planen om du ønsker å sende ut faktura.');
+                            done('');
+                            return;
+                        }
+                    }
+                    this.save(true, false).subscribe(invoice => {
+                        this.massInvoiceWizard(done, invoice, false);
+                    })
+                }
+            })
         }
 
         if (this.invoice.StatusCode) {
@@ -1555,17 +1627,31 @@ export class InvoiceDetails implements OnInit {
             });
         }
 
-        this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
-            action: done => {
-                if (this.aprilaOption.hasPermission) {
-                    this.aprilaOption.autoSellInvoice = false;
-                }
-                return this.transition(done);
-            },
-            disabled: (id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer) || !this.isFormValid,
-            main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
-        });
+        if (this.customers?.length > 1
+            && [StatusCodeCustomerInvoice.Draft, null].includes(this.invoice.StatusCode)
+            && this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
+            this.saveActions.push({
+                label: `Fakturer(${this.customers.length}) og send`,
+                action: done => this.transitionMany(done),
+                disabled: !this.isFormValid || !this.invoiceItems?.some(item => item.ProductID) || (
+                    id > 0
+                    && !transitions['invoice']
+                    || !this.customers?.length),
+                main: !id || (transitions && transitions['invoice']),
+            });
+        } else {
+            this.saveActions.push({
+                label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
+                action: done => {
+                    if (this.aprilaOption.hasPermission) {
+                        this.aprilaOption.autoSellInvoice = false;
+                    }
+                    return this.transition(done);
+                },
+                disabled: (id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer) || !this.isFormValid,
+                main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
+            });
+        }
 
         if (this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
             this.saveActions.push({
@@ -1671,6 +1757,10 @@ export class InvoiceDetails implements OnInit {
             this.invoice.StatusCode = StatusCode.Draft;
         }
 
+        if (this.customers?.length > 1){
+            this.invoice.Customer = null;
+        }
+        
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
         this.invoice = this.tofHelper.beforeSave(this.invoice);
 
@@ -1767,6 +1857,7 @@ export class InvoiceDetails implements OnInit {
     private copyInvoice(invoice: CustomerInvoice): CustomerInvoice {
         this.invoiceID = 0;
         this.currentCustomer = invoice.Customer;
+        this.customers = []; // Might have to query the batchinvoice here.
         invoice.ID = 0;
         invoice.AccrualID = 0;
         invoice.InvoiceNumber = null;
@@ -1854,8 +1945,104 @@ export class InvoiceDetails implements OnInit {
         return invoice;
     }
 
+    private transitionMany(done: (p: any) => void): void {
+        observableFrom(this.checkVatLimitsBeforeSaving()).subscribe(vatOk => {
+            if (!vatOk) {
+                done('Lagring avbrutt');
+                return;
+            }
+
+            this.save(true, false).subscribe(
+                invoice => {
+                    this.isDirty = false;
+                    this.getInvoice(invoice.ID).subscribe(updatedInvoice => {
+                        this.massInvoiceWizard(done, updatedInvoice);
+                    });
+                },
+                err => {
+                    this.errorService.handle(err);
+                    done(`${this.customers.length} Fakturering${this.customers.length > 1 ? 'er' : ''} feilet`);
+                }
+            )
+        });
+    }
+
+    private massInvoiceWizard(
+        done: (p: any) => void,
+        invoice: CustomerInvoice,
+        refreshInvoice: boolean = true): void {
+
+        // Custom modal
+        this.modalService.open(MassInvoiceWizardModal, {
+            data: { customers: this.customers, invoice }
+        }).onClose
+        .finally(() => done(null))
+        .subscribe((res: {customers: MultipleCustomerSelection[], invoice: CustomerInvoice, notifyEmail: boolean, success: boolean}) => {
+            if (!res?.success) return;
+
+            const { customers, invoice, notifyEmail } = res;
+            this.customers = customers;
+
+            if (refreshInvoice) {
+                if (!customers || customers.length <= 1)  {
+                    this.customerService.Get(customers[0].ID, this.customerExpands)
+                        .subscribe(customer => {
+                            this.currentCustomer = customer;
+                            this.invoice.Customer = customer
+
+                            this.refreshInfo(invoice);
+                    })
+                }
+            }
+
+            const r = customers?.length > 1 ? "r" : "";
+
+            this.sendBatchInvoice(customers, invoice, notifyEmail)
+                .catch((err, caught) => this.errorService.handleRxCatch(err, caught))
+                .subscribe(batch => {
+                    if (!batch) {
+                        this.toastService.addToast(`Klarte ikke lage massefaktura jobb`, ToastType.bad, 3);
+
+                        this.refreshInvoice(invoice);
+                        this.updateSaveActions();
+                        return;
+                    }
+                    this.massInvoiceService.invoiceBatch(batch).subscribe(success => {
+                        if (success) {
+                            this.toastService.addToast(`${customers?.length} kunde${r} fakturert`, ToastType.good, 2);
+                            if (refreshInvoice) {
+                                this.router.navigateByUrl("/sales/invoices/0");
+                                this.customers = [];
+                                this.getInvoice(0).subscribe(inv => this.refreshInvoice(inv));
+                            } else {
+                                this.router.navigateByUrl("/sales/invoices");
+                            }
+                        } else {
+                            this.toastService.addToast(`Noe gikk gale, sjekk massefakture listen og prøv igjen`, ToastType.bad, 3);
+                            this.router.navigateByUrl("/sales/invoices")
+                        }
+                    })
+                });
+        });
+    }
+
+    public sendBatchInvoice(customers: MultipleCustomerSelection[], invoice: CustomerInvoice = undefined, notifyEmail: boolean = false): Observable<BatchInvoice> {
+        const thisInvoice = invoice ?? this.invoice;
+        const thiscustomers = customers ?? this.customers;
+
+        if (!thiscustomers || thiscustomers.length < 1) {
+            this.toastService.addToast(`Kan ikke fakturere uten kunder valgt`, ToastType.bad, 2);
+            return Observable.of(null);
+        }
+
+        return this.massInvoiceService.postMassInvoice(thiscustomers.map(c => c.ID), thisInvoice, notifyEmail)
+            .catch((err, caught) => this.errorService.handleRxCatch(err, caught));
+    }
+
+
     private transition(done: any) {
         let orgNumberCheck;
+
         if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
             orgNumberCheck = this.modalService.confirm({
                 header: 'Bekreft kunde',
@@ -1869,10 +2056,11 @@ export class InvoiceDetails implements OnInit {
             orgNumberCheck = observableOf(true);
         }
 
-        forkJoin(
+
+        forkJoin([
             observableFrom(this.checkVatLimitsBeforeSaving()),
             orgNumberCheck
-        ).subscribe(([vatOk, orgNumberOk]) => {
+        ]).subscribe(([vatOk, orgNumberOk]) => {
             if (!vatOk || !orgNumberOk) {
                 done('Lagring avbrutt');
                 return;
@@ -2409,11 +2597,14 @@ export class InvoiceDetails implements OnInit {
                 this.invoice.Items = this.invoiceItems;
                 this.invoice = cloneDeep(this.invoice);
                 this.recalcDebouncer.emit(this.invoiceItems);
+                this.updateSaveActions();
             });
         } else {
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
+            this.updateSaveActions();
+
         }
     }
 

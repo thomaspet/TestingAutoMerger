@@ -92,6 +92,8 @@ export class AgGridWrapper {
     rowsCountTotal: number;
     rowsSumTotal: number;
 
+    private selectedRowNodes: {[id: string]: RowNode} = {};
+
     private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
@@ -140,6 +142,7 @@ export class AgGridWrapper {
             .subscribe((event: SelectionChangedEvent) => {
                 this.agGridApi.refreshHeader();
                 const rows = event?.api.getSelectedRows();
+
                 if (this.allRowsSelected) {
                     this.dataService.sumRow$.take(1).subscribe((rowsSum) => {
                         this.rowsSumTotal = rowsSum[0]['Amount'];
@@ -152,6 +155,41 @@ export class AgGridWrapper {
                     this.markedRowCount = rows ? rows.length : 0;
                 }
                 this.rowSelectionChange.emit(this.allRowsSelected ? [] : rows);
+
+                if (this.config.customRowSelection?.onSelectionChange) {
+                    const currentSelectedNodes = event.api.getSelectedNodes();
+                    const changes = [];
+
+                    Object.keys(this.selectedRowNodes).forEach(nodeID => {
+                        if (!currentSelectedNodes.some(node => node.id === nodeID)) {
+                            changes.push({
+                                row: this.selectedRowNodes[nodeID].data,
+                                selected: false
+                            });
+
+                            delete this.selectedRowNodes[nodeID]
+                        }
+                    });
+
+                    currentSelectedNodes.forEach(node => {
+                        if (!this.selectedRowNodes[node.id]) {
+                            changes.push({
+                                row: node.data,
+                                selected: true
+                            });
+
+                            this.selectedRowNodes[node.id] = node;
+                        }
+                    });
+
+                    if (changes.length) {
+                        this.config.customRowSelection?.onSelectionChange({
+                            allRowsUnchecked: !currentSelectedNodes?.length,
+                            changes: changes
+                        });
+                    }
+                }
+
                 this.cdr.markForCheck();
             });
 
@@ -276,7 +314,10 @@ export class AgGridWrapper {
                     this.agGridApi.deselectAll();
                 }
 
-                this.initialize();
+                const oldConfig = changes['config']?.previousValue
+                const configFiltersUpdated = oldConfig && (JSON.stringify(oldConfig.filters) !== JSON.stringify(this.config.filters));
+
+                this.initialize(configFiltersUpdated);
             }
         }
 
@@ -286,12 +327,13 @@ export class AgGridWrapper {
         }
     }
 
-    private initialize() {
+    private initialize(forceReInitOnSameConfig = false) {
         // Only initialize if we have all required inputs and the config actually changed, or quickFilters have value and requires reload
         const configChanged = this.config && this.config.configStoreKey !== this.configStoreKey;
+
         const quickFiltersHasValue = this?.quickFilters?.filter(x => !!x.filterGenerator && x.filterGenerator(x.value)).length > 0;
 
-        if ((configChanged || quickFiltersHasValue) && this.resource && this.agGridApi) {
+        if ((forceReInitOnSameConfig || configChanged || quickFiltersHasValue) && this.resource && this.agGridApi) {
             this.configStoreKey = this.config.configStoreKey;
             this.dataService.initialize(this.agGridApi, this.config, this.resource, this.quickFilters);
         }
@@ -365,6 +407,8 @@ export class AgGridWrapper {
 
                     this.isInitialLoad = false;
                 }
+
+                this.updateCustomRowSelection();
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
@@ -379,8 +423,26 @@ export class AgGridWrapper {
                     this.selectAll();
                 }
 
+                this.updateCustomRowSelection();
                 this.isInitialLoad = false;
             }
+        }
+    }
+
+    updateCustomRowSelection() {
+        if (this.config.customRowSelection?.isRowSelected) {
+            this.agGridApi.forEachNode(node => {
+                const shouldBeSelected = this.config.customRowSelection.isRowSelected(node.data);
+                if (node.isSelected() !== shouldBeSelected) {
+                    node.setSelected(shouldBeSelected);
+
+                    if (shouldBeSelected) {
+                        this.selectedRowNodes[node.id] = node;
+                    } else {
+                        delete this.selectedRowNodes[node.id];
+                    }
+                }
+            });
         }
     }
 
@@ -933,7 +995,10 @@ export class AgGridWrapper {
                 headerTooltip: col.header,
                 rowGroup: col.rowGroup,
                 enableRowGroup: col.enableRowGroup,
-                tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
+                suppressSorting: !col.sortable,
+                tooltip: (params) => col.cellTitleResolver
+                    ? col.cellTitleResolver(params.data)
+                    : this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => {
                     let data = params.data;
                     if (!data && this.groupingEnabled && col.isSumColumn) {

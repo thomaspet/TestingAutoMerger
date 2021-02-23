@@ -17,6 +17,7 @@ import {SellerLinkService} from './sales/sellerLinkService';
 import {RecurringInvoiceService} from './sales/recurringInvoiceService';
 import {PaymentInfoTypeService} from './sales/paymentInfoTypeService';
 import {BatchInvoiceService} from './sales/batchInvoiceService';
+import {MassInvoiceService} from "./sales/massInvoiceService";
 
 export * from './sales/addressService';
 export * from './sales/businessRelationService';
@@ -35,6 +36,7 @@ export * from './sales/sellerService';
 export * from './sales/sellerLinkService';
 export * from './sales/paymentInfoTypeService';
 export * from './sales/recurringInvoiceService';
+export * from './sales/massInvoiceService';
 
 @NgModule({})
 export class SalesServicesModule {
@@ -59,7 +61,8 @@ export class SalesServicesModule {
                 SellerService,
                 SellerLinkService,
                 PaymentInfoTypeService,
-                BatchInvoiceService
+                BatchInvoiceService,
+                MassInvoiceService,
             ]
         };
     }

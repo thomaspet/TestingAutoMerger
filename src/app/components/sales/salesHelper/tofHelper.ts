@@ -43,7 +43,24 @@ export class TofHelper {
         entity.Customer = customer;
         entity.CustomerID = customer?.ID;
 
-        if (customer.Info) {
+        if (!customer) { // == for undefined and null check
+            entity.EmailAddress = null;
+            this.addressService.addressToInvoice(entity, null);
+            this.addressService.addressToShipping(entity, null);
+            entity.CustomerName = null;
+            entity.CurrencyCodeID = null;
+            entity.DefaultSellerID = null;
+            entity.DefaultSeller = null;
+
+            entity.PaymentTermsID = null;
+            entity.PaymentTerms = null;
+            entity.DeliveryTermsID = null;
+            entity.DeliveryTerms = null;
+            entity.Sellers = [];
+            return entity;
+        } 
+
+        if (customer?.Info) {
             entity.CustomerName = customer.Info.Name;
             const emails = customer.Info.Emails || [];
             const addresses = customer.Info.Addresses || [];
@@ -117,7 +134,7 @@ export class TofHelper {
             entity.Sellers = sellers;
         }
 
-               return entity;
+        return entity;
     }
 
     isDistributable(entityName, entity, settings, plans) {

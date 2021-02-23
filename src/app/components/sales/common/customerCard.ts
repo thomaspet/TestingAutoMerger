@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {Customer} from '@uni-entities';
 import {
     CustomerService,

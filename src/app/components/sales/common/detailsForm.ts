@@ -26,6 +26,7 @@ export class TofDetailsForm {
     @ViewChild(UniForm) form: UniForm;
 
     @Input() readonly: boolean;
+    @Input() multipleCustomers: boolean = false;
     @Input() entityType: string;
     @Input() entity: any;
     @Input() currencyCodes: CurrencyCode[];
@@ -50,6 +51,11 @@ export class TofDetailsForm {
 
     ngOnInit() {
         this.entity$.next(this.entity);
+
+        if (this.entityType === "CustomerInvoice" && this.multipleCustomers && this.entity) {
+            this.entity.EmailAddress = null;
+        }
+
         this.initFormFields();
     }
 
@@ -57,6 +63,10 @@ export class TofDetailsForm {
         this.entity$.next(this.entity);
         if ((this.projects && this.departments && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
+        }
+
+        if (this.entityType === "CustomerInvoice" && this.multipleCustomers && this.entity) {
+            this.entity.EmailAddress = null;
         }
     }
 
@@ -188,6 +198,7 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'E-postadresse',
                     Section: 0,
+                    ReadOnly: this.entityType === "CustomerInvoice" && this.multipleCustomers,
                     Validations: [
                         (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
                     ]

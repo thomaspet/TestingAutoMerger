@@ -8,6 +8,8 @@
     "Model": "CustomerInvoice",
     "Expand": "",
     "OrderBy": "ID DESC",
+    "Filter": "(BatchInvoice.Operation eq 3 or isnull(BatchInvoice.ID,0) eq 0)",
+    "Joins": "CustomerInvoice.ID eq BatchInvoiceItem.CustomerInvoiceID and BatchInvoiceItem.BatchInvoiceID eq BatchInvoice.ID",
     "Columns": [
         {
             "Header": "Fakturanr.",
@@ -228,6 +230,12 @@
             "Field": "ExternalReference",
             "DefaultHidden": true,
             "Width": "125px"
+        },
+        {
+            "Header": "Massefaktura Jobbnr",
+            "Field": "BatchInvoiceItem.BatchInvoiceID",
+            "DefaultHidden": true,
+            "Width": "150px"
         }
     ],
     "ParentFilter": {
@@ -253,6 +261,14 @@
             "DisplayInActionBar": true,
             "DisplayOnlyInFilterCode": "overdue_invoices",
             "GoToUrlTarget": "/sales/reminders/ready"
+        },
+        {
+            "Name": "Vis massefakturaer",
+            "Code": "mass_invoices",
+            "Type": "localFunction",
+            "ExecuteWithMultipleSelections": false,
+            "ExecuteWithoutSelection": true,
+            "NeedsActionOverride": true
         },
         {
             "Name": "Eksporter",
@@ -301,6 +317,15 @@
         {
             "Name": "Send på e-post",
             "Code": "invoice_sendemail",
+            "Type": "action",
+            "ExecuteWithMultipleSelections": false,
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": false,
+            "NeedsActionOverride": true
+        },
+        {
+            "Name": "Send til flere",
+            "Code": "invoice_batchinvoice",
             "Type": "action",
             "ExecuteWithMultipleSelections": false,
             "DisplayInContextMenu": true,

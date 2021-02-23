@@ -1,0 +1,42 @@
+<header class="header">
+    {{showItems ? 'Fakturaliste' : 'Massefakturaer'}}
+    <i class="material-icons close" (click)="close.emit()">close</i>
+</header>
+
+<section *ngIf="busy" class="modal-spinner">
+    <mat-spinner class="c2a"></mat-spinner>
+</section>
+
+<strong *ngIf="hasFailingItems && showItems">
+    Det er noen fakturaer som ikke er blitt laget, 
+    gå over kommentar feltet og prøv å lage de på nytt
+</strong>
+
+<section class="invoice_items" style="height: 100%" *ngIf="showItems">    
+    <button class="tertiary c2a" (click)="showItems=false">
+        <i class="material-icons">keyboard_backspace</i> Tilbake
+    </button>
+
+    <ag-grid-wrapper
+        #batchItems
+        style="height: 85%"
+        [resource]="itemsLookupFunction"
+        [config]="itemsTableConfig">
+    </ag-grid-wrapper>
+
+    <button class="c2a" 
+        *ngIf="hasFailingItems"
+        style="margin: 0 0 5px auto; display: block" 
+        (click)="retryFailing()">
+        Lag feilende på nytt
+    </button>
+</section>
+
+<section *ngIf="!showItems">
+    <ag-grid-wrapper
+        #batchinvoices
+        [resource]="lookupFunction"
+        [config]="tableConfig"
+        (rowClick)="onBatchInvoiceSelected($event)">
+    </ag-grid-wrapper>
+</section>

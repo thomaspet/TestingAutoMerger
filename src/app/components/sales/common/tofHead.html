@@ -1,8 +1,17 @@
 <article class="tof-head">
     <section class="uni-container customer-card">
-        <header>Kunde</header>
+        <header style="font-weight: 500; border-bottom: 1px solid var(--border-color); padding: 1.5rem 1rem;">
+            Kunde{{customers?.length > 1 ? "r" : ""}}
+            <button 
+                *ngIf="entityName === 'CustomerInvoice' && (customers?.length <= 1 || !customers) && (data?.StatusCode === 42001 || data?.StatusCode === null)"
+                style="margin-left: auto; padding-right: 0; "
+                class="tertiary c2a" (click)="addMultipleCustomer()">
+                + Legg til flere
+            </button>
+        </header>
 
         <tof-customer-card
+            *ngIf="!customers?.length || customers?.length === 1"
             [readonly]="readonly"
             [entity]="data"
             [entityType]="entityName"
@@ -10,6 +19,14 @@
             (entityChange)="onDataChange($event)"
             (keydown.tab)="focusDetailsForm($event)">
         </tof-customer-card>
+
+        <tof-customer-list
+            *ngIf="customers?.length > 1"
+            [entities]="customers"
+            (editCustomerList)="addMultipleCustomer()"
+            (keydown.tab)="focusDetailsForm($event)">
+        >
+        </tof-customer-list>
 
         <div class="required-dimension" *ngIf="validationMessage?.Level === 30">
             <i class="material-icons bad">error</i>
@@ -39,6 +56,7 @@
             (errorEvent)="errorEvent.emit($event)"
             [entityType]="entityName"
             [readonly]="readonly"
+            [multipleCustomers]="customers?.length > 1"
             [currencyCodes]="currencyCodes"
             [projects]="projects"
             [departments]="departments"
@@ -52,6 +70,7 @@
             (entityChange)="onDataChange($event)"
             [entityType]="entityName"
             [readonly]="readonly"
+            [multipleCustomers]="customers?.length > 1"
             [paymentInfoTypes]="paymentInfoTypes">
         </tof-delivery-form>
 

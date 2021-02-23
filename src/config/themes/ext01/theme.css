@@ -219,4 +219,6 @@ body {
 
     --chat-header-background: #005AA4;
     --panel-header-background: rgb(240, 240, 240);
+
+    --alert-border-radius: 50px;
 }

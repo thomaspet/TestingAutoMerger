@@ -7,7 +7,7 @@
         display: inline-block
         width: 100%
         padding: 0 10px
-        border-radius: 50px
+        border-radius: var(--alert-border-radius)
         font-size: 13px
         text-align: center
         &.info
@@ -17,11 +17,11 @@
             background: var(--color-c2a)
             color: #fff
         &.good
-            background: var(--color-good)
-            color: #fff
+            background: var(--alert-good)
+            color: var(--alert-good-text-color)
         &.warn
-            background: var(--color-warn)
-            color: #fff
+            background: var(--alert-warn)
+            color: var(--alert-warn-text-color)
         &.bad
-            background: var(--color-bad)
-            color: #fff
+            background: var(--alert-bad)
+            color: var(--alert-bad-text-color)

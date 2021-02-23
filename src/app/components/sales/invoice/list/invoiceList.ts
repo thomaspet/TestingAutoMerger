@@ -1,16 +1,32 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {CustomerInvoiceService, ITickerActionOverride, ITickerColumnOverride} from '@app/services/services';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import {trigger, transition, animate, style} from '@angular/animations';
+import { ITableFilter } from '@uni-framework/ui/unitable';
+import { BatchInvoice } from '@uni-entities';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'invoice-list',
-    templateUrl: './invoiceList.html'
+    templateUrl: './invoiceList.html',
+    styleUrls: ['./invoiceList.sass'],
+    animations: [
+        trigger('slideInOut', [
+            transition(':enter', [
+                style({transform: 'translateX(100%)'}),
+                animate('500ms cubic-bezier(0.250, 0.460, 0.450, 0.940)', style({transform: 'translateX(0%)'}))
+            ]),
+            transition(':leave', [
+                animate('500ms cubic-bezier(0.250, 0.460, 0.450, 0.940)', style({transform: 'translateX(100%)'}))
+            ])
+        ])
+    ]
 })
 export class InvoiceList implements OnInit {
     public tickercode: string = 'invoice_list';
     public actionOverrides: ITickerActionOverride[] = this.customerInvoiceService.actionOverrides;
-
+    public tableFilters: ITableFilter[];
     public columnOverrides: ITickerColumnOverride[] = [{
         Field: 'StatusCode',
         Template: (dataItem) => {
@@ -46,11 +62,14 @@ export class InvoiceList implements OnInit {
         main: true,
         disabled: false
     }];
+    public showMassInvoiceList: boolean = false;
+    queryParamSubscription: Subscription;
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,
         private tabService: TabService,
         private router: Router,
+        private route: ActivatedRoute,
     ) {}
 
     public ngOnInit() {
@@ -60,6 +79,28 @@ export class InvoiceList implements OnInit {
             active: true,
             moduleID: UniModules.Invoices
         });
+
+        this.queryParamSubscription = this.route.queryParamMap.subscribe(params => {
+            if (params.get("show") === "massinvoice") {
+                this.showMassInvoiceList = true
+            }
+        })
+    }
+
+    public ngOnDestroy() {
+        this.queryParamSubscription?.unsubscribe();
+    }
+
+    public closeMassInvoice(event?: BatchInvoice) {
+        this.showMassInvoiceList = false;
+        this.router.navigateByUrl("/sales/invoices")
+        if (event) {
+            this.tableFilters = [{
+                field: "BatchInvoiceItem.BatchInvoiceID",
+                operator: "eq",
+                value: event.ID
+            }]
+        }
     }
 
     public onRowSelected(row) {

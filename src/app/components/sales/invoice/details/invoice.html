@@ -24,8 +24,10 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         [distributions]="customerDistributions"
+        [customers]="customers"
         (errorEvent)="onErrorEvent($event)"
         (dataChange)="onInvoiceChange($event)"
+        (multipleCustomersEvent)="onMultipleCustomers($event)"
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 

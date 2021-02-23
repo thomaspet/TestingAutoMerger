@@ -124,6 +124,7 @@ export interface IUniTableColumn {
     placeholder?: string | ((row) => string);
     statusMap?: TableStatusMap;
     featurePermission?: string;
+    cellTitleResolver: (data) => string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -154,6 +155,7 @@ export class UniTableColumn implements IUniTableColumn {
     public editor: any;
     public width: number|string;
     public maxWidth: number;
+    public sortable = true;
     public sortMode: UniTableColumnSortMode;
     public sortField: string;
     public isSumColumn: boolean;
@@ -177,6 +179,7 @@ export class UniTableColumn implements IUniTableColumn {
     public statusMap: TableStatusMap;
     public checkboxConfig: TableCheckboxConfig;
     public featurePermission: string;
+    public cellTitleResolver: (data) => string;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -205,6 +208,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setHeader(header: string) {
         this.header = header;
+        return this;
+    }
+
+    public setCellTitleResolver(resolver: (data) => string) {
+        this.cellTitleResolver = resolver;
         return this;
     }
 
@@ -444,6 +452,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setJumpToColumn(field: string) {
         this.jumpToColumn = field;
+        return this;
+    }
+
+    public setSortable(sortable: boolean) {
+        this.sortable = sortable;
         return this;
     }
 

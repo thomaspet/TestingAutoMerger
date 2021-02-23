@@ -1,0 +1,47 @@
+\:host 
+    height: 80%
+
+.uni-modal
+    height: 100%
+    > article
+        max-height: calc(100vh - 12rem)
+
+.smallmodal
+    height: 23rem
+
+.alert, .alert a
+    font-size: 15px
+    font-weight: 400
+
+.alert
+    margin-top: 1rem
+    padding: .75rem 1rem
+    align-items: center
+
+    &.flex-column
+        align-items: start
+        flex-direction: column
+
+    &:last-of-type
+        margin-bottom: 2rem
+
+    strong
+        margin-bottom: .75rem
+
+    mat-checkbox
+        margin-top: .75rem
+
+    ::ng-deep .mat-checkbox-label
+        font-size: 15px
+
+.red-warning
+    margin-top: auto
+    margin-right: 2.5rem
+    text-align: right
+    color: red
+
+.kunde-list
+    strong
+        display: flex
+        justify-content: space-between
+        margin-bottom: .75rem

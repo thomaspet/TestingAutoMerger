@@ -155,6 +155,8 @@ body {
   --widget-header-color: #000;
   --widget-c2a: #00c8eb;
   --chat-header-background: #000;
+
+  --alert-border-radius: 50px;
 }
 
 button {

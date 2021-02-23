@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {DistributionPlan} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {ElementTypes, ElementType} from '@app/models/distribution';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class DistributionPlanService extends BizHttp<DistributionPlan> {
@@ -111,5 +112,27 @@ export class DistributionPlanService extends BizHttp<DistributionPlan> {
     public getElementName(elementType: ElementType) {
         const type = ElementTypes.find(x => x.type === elementType);
         return type.name;
+    }
+
+    public getForCustomers(ids: number[]): Observable<any> {
+        if (ids?.length === 0) return Observable.of({});
+
+        const idsstring = ids.join(",");
+
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=get-valid-distributions-for-customers&customerIds=${idsstring}`)
+            .send()
+            .map(res => res.body|| {});
+    }
+
+    public getForCustomer(id: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=get-valid-distributions-for-customer&customerId=${id}`)
+            .send()
+            .map(res => res.body || []);
     }
 }

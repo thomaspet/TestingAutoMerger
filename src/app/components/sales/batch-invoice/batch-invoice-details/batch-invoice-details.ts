@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChi
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {HttpParams} from '@angular/common/http';
 import {StatisticsService, ErrorService} from '@app/services/services';
-import {StatusCode, BatchInvoice, Status} from '@uni-entities';
+import {StatusCode, BatchInvoice} from '@uni-entities';
 import {BatchInvoiceService} from '@app/services/sales/batchInvoiceService';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';

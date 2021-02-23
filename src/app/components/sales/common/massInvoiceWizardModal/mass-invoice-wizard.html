@@ -1,0 +1,120 @@
+<section role="dialog" class="uni-modal" [class.medium]="currentStep === STEPS.Customers" [class.smallmodal]="currentStep === STEPS.Complete">
+    <header>Massefakturering</header>
+
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <ng-container *ngIf="!(currentStep === STEPS.Customers && showGridSelection)">
+        <article *ngIf="currentStep === STEPS.BatchInvoiceSettings">
+
+            <section class="alert flex-column">
+                <strong>Klar til å kjøre massefakturering av fakturakladd til {{selectedRowCount}} kunder</strong>
+
+                <span>
+                    <ng-container *ngIf="canDistribute">
+                        Fakturaene sendes ut etter oppsatt <a (click)="goToDistributionSettings()">utsendingsplan</a>.
+                    </ng-container>
+
+                    Når jobben er fullført vil du få et varsel i applikasjonen.
+                    Du kan også velge å få en epost med oppsummering av jobben.
+                </span>
+
+                <mat-checkbox [(ngModel)]="notifyEmail">
+                    Send meg en epost når jobben er fullført
+                </mat-checkbox>
+            </section>
+
+            <section class="alert warn" *ngIf="!canDistribute">
+                <span>
+                    Du har ikke satt opp en <a (click)="goToDistributionSettings()">standard plan</a> for fakturaer.
+                    <br>Samlefakturering kan kjøres, men fakturaene vil ikke bli sendt.
+                </span>
+            </section>
+
+            <uni-form
+                *ngIf="formFields?.length"
+                [config]="{ autofocus: true }"
+                [fields]="formFields"
+                [model]="invoice"
+                (changeEvent)="onFormEdit()">
+            </uni-form>
+
+            <strong class="red-warning" *ngIf="this.withinLockedDate">
+                Du har satt en fakturadato som er i en låst periode.
+                Låst opp perioden eller velg en annen dato.
+            </strong>
+        </article>
+
+        <article *ngIf="currentStep === STEPS.Customers">
+
+            <section class="kunde-list">
+                <ag-grid-wrapper
+                    #viewCustomers
+                    style="font-size: 15px;"
+                    [resource]="selectedCustomers"
+                    [config]="tableConfig"
+                    (rowDelete)="onDeleteRow($event)"
+                >
+                </ag-grid-wrapper>
+            </section>
+        </article>
+
+        <article *ngIf="currentStep === STEPS.Complete">
+            Fakturakladden er nå klar for å sendes til {{selectedRowCount}} kunder.
+            <br/>Trykk Send for å bekrefte og starte distribusjonen.
+            <section class="alert info">
+                <i class="material-icons-outlined">info</i>
+                <span>
+                    Jobben kan ta litt tid, du vil få et varsel i applikasjonen når den er ferdig.
+                    <br>
+                    Du kan se status ved å trykke på 'Massefakturering' i fakturalisten
+                </span>
+            </section>
+
+        </article>
+
+        <strong class="red-warning" *ngIf="selectedRowCount === 0 && currentStep === STEPS.Customers && !showGridSelection">
+            Ingen kunder valgt
+        </strong>
+
+        <footer>
+            <button class='close-button' role="button" (click)="close()">Lukk</button>
+            <button *ngIf="currentStep !== STEPS.BatchInvoiceSettings"
+                class="secondary"
+                role="button"
+                (click)="previous()">
+                Tilbake
+            </button>
+
+            <button *ngIf="currentStep !== STEPS.Complete"
+                class='c2a'
+                role="button"
+                (click)="next()"
+                [disabled]="(selectedRowCount === 0 && currentStep === STEPS.Customers && !showGridSelection) || this.withinLockedDate">
+                Neste
+            </button>
+            <button *ngIf="currentStep === STEPS.Complete"
+                class='c2a good'
+                role="button"
+                (click)="saveBatchInvoice()">
+                Fakturer ({{selectedCustomers.length}}) og send
+            </button>
+        </footer>
+
+    </ng-container>
+
+
+    <ng-container *ngIf="currentStep === STEPS.Customers && showGridSelection">
+        <article>
+           <ag-grid-wrapper
+                style="font-size: 15px; max-height: 100%;"
+                [resource]="transactionsLookupFunction"
+                [config]="selectionTableConfig">
+            </ag-grid-wrapper>
+        </article>
+        <footer>
+            <button class="secondary" (click)="cancelSelection()">Lukk</button>
+            <button class="c2a" (click)="lagreSelection()">Lagre</button>
+        </footer>
+    </ng-container>
+</section>

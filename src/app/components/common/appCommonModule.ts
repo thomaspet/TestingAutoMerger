@@ -82,10 +82,10 @@ import {DashboardModule} from './dashboard/dashboard.module';
 import {CompanyBankAccountModal} from './modals/bank-account-modal/company-bank-account-modal';
 import {CompanyBankAccountEdit} from './modals/bank-account-modal/bank-account-edit';
 import {BankIDPaymentModal} from './modals/bankid-payment-modal/bankid-payment-modal';
-import {CustomerEditModal} from './modals/customer-edit-modal/customer-edit-modal';
-import {SupplierEditModal} from './modals/edit-supplier-modal/edit-supplier-modal';
 import {ApiStatus} from './api-status/api-status';
-
+import { CustomerEditModal } from './modals/customer-edit-modal/customer-edit-modal';
+import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-modal';
+import { SelectCustomersModal } from './modals/selectCustomersModal';
 
 @NgModule({
     imports: [
@@ -150,6 +150,7 @@ import {ApiStatus} from './api-status/api-status';
         ImportVoucherModal,
         ImportOrderModal,
         BankInitModal,
+        SelectCustomersModal,
 
         WorkEditor,
         UniTimeModal,

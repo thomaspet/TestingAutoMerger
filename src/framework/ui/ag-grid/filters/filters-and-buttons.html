@@ -1,5 +1,5 @@
 <section class="wrapper">
-    <section class="freetext-and-advanced-filters">
+    <section *ngIf="tableConfig?.searchable" class="freetext-and-advanced-filters">
         <section class="input-with-button">
             <input #searchInput [formControl]="searchControl" type="text" placeholder="Søk">
 

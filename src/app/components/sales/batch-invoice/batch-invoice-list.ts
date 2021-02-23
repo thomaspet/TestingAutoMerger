@@ -110,6 +110,7 @@ export class BatchInvoiceList {
                 'TotalToProcess as TotalToProcess',
                 'InvoiceDate as InvoiceDate',
                 'DueDate as DueDate',
+                'Operation as Operation',
                 'sum(CustomerOrder.TaxExclusiveAmountCurrency) as SumOrders',
             ];
 
@@ -122,18 +123,23 @@ export class BatchInvoiceList {
                 urlParams = urlParams.set('orderby', 'ID desc');
             }
 
-            const filter = urlParams.get('filter');
+            let filter = urlParams.get('filter');
             if (filter && this.statusCodeFilter) {
-                urlParams = urlParams.set('filter', `${this.statusCodeFilter} and ${filter}`);
+                filter = `${this.statusCodeFilter} and ${filter}`;
             } else if (filter || this.statusCodeFilter) {
-                urlParams = urlParams.set('filter', filter || this.statusCodeFilter);
+                filter = filter || this.statusCodeFilter;
+            }
+
+            if (filter) {
+                urlParams = urlParams.set('filter', `${filter} and Operation ne 3`)
+            } else {
+                urlParams = urlParams.set('filter', "Operation ne 3");
             }
 
             return this.statisticsService.GetAllByHttpParams(urlParams, true);
         };
 
         this.signalRSubscription = this.signalRService.pushMessage$.subscribe(message => {
-            console.log('message', message);
             if (message && message.cargo && message.cargo.entityType === 'BatchInvoice') {
                 this.reloadList();
             }
@@ -152,7 +158,6 @@ export class BatchInvoiceList {
 
     reloadList() {
         if (this.table && this.table.hasLoadedData) {
-            console.log('reloading list');
             this.table.refreshTableData();
         }
     }
@@ -173,7 +178,8 @@ export class BatchInvoiceList {
 
         const params = new HttpParams()
             .set('model', 'BatchInvoice')
-            .set('select', selects.join(','));
+            .set('select', selects.join(','))
+            .set('filter', 'Operation ne 3');
 
         return this.statisticsService.GetAllUnwrapped(params.toString()).pipe(
             map(res => res && res[0] || {}),

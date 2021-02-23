@@ -171,7 +171,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.filter = '';
         const listProperty = this.field.Options.listProperty || this.field.Property;
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
-        setTimeout(() => this.filterInput.nativeElement.focus());
+        setTimeout(() => this.filterInput?.nativeElement.focus());
     }
 
     public close() {
@@ -482,7 +482,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 this.open();
             }
             this.filter += character;
-            setTimeout(() => this.filterInput.nativeElement.focus());
+            setTimeout(() => this.filterInput?.nativeElement.focus());
         }
     }
 }

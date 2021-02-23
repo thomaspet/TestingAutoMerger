@@ -21,6 +21,7 @@ import * as moment from 'moment';
 })
 export class TofDeliveryForm implements OnInit {
     @Input() readonly: boolean;
+    @Input() multipleCustomers: boolean = false;
     @Input() entityType: string;
     @Input() entity: any;
     @Input() paymentInfoTypes: PaymentInfoType[];
@@ -45,10 +46,15 @@ export class TofDeliveryForm implements OnInit {
     ) {}
 
     ngOnInit() {
-        forkJoin(
+        if (this.entityType === "CustomerInvoice" && this.multipleCustomers) {
+            this.entity["_shippingAddress"] = null;
+            this.entity["_shippingAddressID"] = null;
+        }
+
+        forkJoin([
             this.termsService.GetAction(null, 'get-payment-terms'),
             this.termsService.GetAction(null, 'get-delivery-terms'),
-        ).subscribe(
+        ]).subscribe(
             res => {
                 this.paymentTerms = res[0] || [];
                 this.deliveryTerms = res[1] || [];
@@ -67,7 +73,7 @@ export class TofDeliveryForm implements OnInit {
     }
 
     ngOnChanges() {
-        if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
+        if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID'] && !this.multipleCustomers) {
             const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
                 return addr.AddressLine1 === this.entity.ShippingAddressLine1
                     && addr.PostalCode === this.entity.ShippingPostalCode
@@ -77,6 +83,11 @@ export class TofDeliveryForm implements OnInit {
             if (shippingAddress) {
                 this.entity['_shippingAddress'] = shippingAddress;
             }
+        }
+
+        if (this.entityType === "CustomerInvoice" && this.multipleCustomers) {
+            this.entity["_shippingAddress"] = null;
+            this.entity["_shippingAddressID"] = null;
         }
 
         this.model$.next(this.entity);
@@ -157,6 +168,10 @@ export class TofDeliveryForm implements OnInit {
             storeResultInProperty: '_shippingAddress',
             hideDeleteButton: true,
             editor: (value) => {
+                if (this.entityType === "CustomerInvoice" && this.multipleCustomers) {
+                    return Promise.resolve(null);
+                }
+
                 if (!this.entity || !this.entity.Customer) {
                     this.toastService.addToast(
                         'Kan ikke opprette addresse uten kunde',
@@ -252,6 +267,7 @@ export class TofDeliveryForm implements OnInit {
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Leveringsadresse',
                 Options: addressFieldOptions,
+                ReadOnly: this.entityType === "CustomerInvoice" && this.multipleCustomers,
                 Section: 0,
             },
             <any> {

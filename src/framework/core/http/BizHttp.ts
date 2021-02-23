@@ -128,6 +128,8 @@ export class BizHttp<T> {
     }
 
     public Get(ID: number|string, expand?: string[], hateoas = false): Observable<any> {
+        if (!ID) return Observable.of({});
+
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');

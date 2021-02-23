@@ -38,6 +38,7 @@ import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
+import {TofCustomerList} from './common/customerList/tof-customer-list';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofSellers} from './common/tof-sellers';
@@ -62,6 +63,8 @@ import {KidModalComponent} from '@app/components/sales/customer/kid-modal/kid-mo
 import {AvtaleGiroModal} from './customer/avtalegiro-modal/avtalegiro-modal';
 import {AprilaOfferModal} from './invoice/modals/aprila-offer/aprila-offer-modal';
 import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
+import {MassInvoiceWizardModal} from './common/massInvoiceWizardModal/mass-invoice-wizard';
+import {MassInvoiceList} from './invoice/massInvoiceList/mass-invoice-list';
 
 @NgModule({
     imports: [
@@ -84,6 +87,7 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
 
         TofHead,
         TofCustomerCard,
+        TofCustomerList,
         TofDetailsForm,
         TofDeliveryForm,
         TofDistributionForm,
@@ -95,7 +99,9 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
 
         InvoiceList,
         InvoiceDetails,
+        MassInvoiceList,
         SendInvoiceModal,
+        MassInvoiceWizardModal,
 
         UniRecurringInvoice,
         RecurringInvoiceList,

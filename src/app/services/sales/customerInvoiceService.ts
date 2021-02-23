@@ -69,6 +69,14 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             CheckActionIsDisabled: (selectedRow) => selectedRow.CustomerInvoiceStatusCode !== StatusCodeCustomerInvoice.Draft,
             ExecuteActionHandler: (selectedRows) => this.deleteInvoices(selectedRows)
         },
+        {
+            Code: 'invoice_batchinvoice',
+            ExecuteActionHandler: (selectedRows) => this.onBatchInvoice(selectedRows)
+        },
+        {
+            Code: 'mass_invoices',
+            ExecuteActionHandler: () => this.showMassInvoices()
+        }
     ];
 
     constructor(
@@ -81,6 +89,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.entityType = CustomerInvoice.EntityType;
+    }
+
+    public showMassInvoices(): Promise<any> {
+        return this.router.navigateByUrl("sales/invoices?show=massinvoice");
     }
 
     public onCheckRegisterPaymentDisabled(selectedRow: any): boolean {
@@ -284,6 +296,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return Promise.resolve();
     }
 
+    public onBatchInvoice(selectedRows: Array<any>): Promise<any> {
+        const invoice = selectedRows[0];
+        return this.router.navigateByUrl(`sales/invoices/${invoice.ID};batchwizard=true`)
+    }
 
     public createInvoiceJournalEntryDraftAction(id: number): Observable<any> {
         super.invalidateCache();

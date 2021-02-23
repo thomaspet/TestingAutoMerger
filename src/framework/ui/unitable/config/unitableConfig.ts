@@ -50,6 +50,13 @@ export interface IUniTableConfig {
     multiRowSelect?: boolean;
     multiRowSelectDefaultValue?: boolean;
     multiRowSelectOnRowClick?: boolean;
+    customRowSelection?: {
+        isRowSelected?: (rowModel) => boolean,
+        onSelectionChange?: (event: {
+            allRowsUnchecked?: boolean,
+            changes: Array<{row, selected: boolean}>
+        }) => void,
+    }
     selectOnlyVisible?: boolean;
     columnMenuVisible?: boolean;
     advancedColumnMenu?: boolean;
@@ -71,6 +78,8 @@ export interface IUniTableConfig {
     expressionFilterValues?: IExpressionFilterValue[];
     isRowReadOnly?: (rowModel) => boolean;
     isRowSelectable?: (rowModel) => boolean;
+    // isRowSelected?: (rowModel) => boolean;
+    onRowSelectionChange?: (changes?: {row, selected: boolean}[]) => void;
     defaultOrderBy?: ISortInfo;
     autoScrollIfNewCellCloseToBottom?: boolean;
     beforeEdit?: (editorData: IEditorData) => IEditorData;
@@ -109,6 +118,14 @@ export class UniTableConfig implements IUniTableConfig {
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
     public multiRowSelectOnRowClick: boolean;
+    public customRowSelection: {
+        isRowSelected?: (rowModel) => boolean,
+        onSelectionChange?: (event: {
+            allRowsUnchecked?: boolean,
+            changes: Array<{row, selected: boolean}>
+        }) => void
+    };
+
     public selectOnlyVisible: boolean;
     public columnMenuVisible: boolean;
     public advancedColumnMenu: boolean;
@@ -131,6 +148,8 @@ export class UniTableConfig implements IUniTableConfig {
     public defaultRowData: Object;
     public isRowReadOnly: (rowModel) => boolean;
     public isRowSelectable: (rowModel) => boolean;
+    // public isRowSelected: (rowModel) => boolean;
+
     public defaultOrderBy: ISortInfo;
 
     public beforeEdit: (event: IEditorData) => IEditorData;
@@ -305,6 +324,17 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
+    public setCustomRowSelection(config: {
+        isRowSelected?: (rowModel) => boolean;
+        onSelectionChange?: (event: {
+            allRowsUnchecked?: boolean,
+            changes: Array<{row, selected: boolean}>
+        }) => void;
+    }) {
+        this.customRowSelection = config;
+        return this;
+    }
+
     public setAutoScrollIfNewCellCloseToBottom(autoscroll: boolean) {
         this.autoScrollIfNewCellCloseToBottom = autoscroll;
         return this;
@@ -355,6 +385,11 @@ export class UniTableConfig implements IUniTableConfig {
         this.isRowSelectable = isRowSelectable;
         return this;
     }
+
+    // public setIsRowSelected(isRowSelected: (rowModel) => boolean) {
+    //     this.isRowSelected = isRowSelected;
+    //     return this;
+    // }
 
     public setDefaultOrderBy(field: string, direction: number, mode: number = UniTableColumnSortMode.Normal) {
         this.defaultOrderBy = {

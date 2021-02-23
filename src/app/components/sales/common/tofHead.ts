@@ -17,6 +17,8 @@ import {AccountMandatoryDimensionService} from '@app/services/services';
 import {THEMES, theme} from 'src/themes/theme';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '@app/authService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { MultipleCustomerSelection, SelectCustomersModal } from '@app/components/common/modals/selectCustomersModal';
 
 const MAXFILESIZEEMAIL: number = 1024 * 1024 * 30;
 
@@ -43,8 +45,10 @@ export class TofHead implements OnChanges {
     @Input() paymentInfoTypes: any[];
     @Input() currentUser: User;
     @Input() distributions: any[] = [];
+    @Input() customers: Array<MultipleCustomerSelection> = [];
 
     @Output() dataChange = new EventEmitter();
+    @Output() multipleCustomersEvent = new EventEmitter<Array<MultipleCustomerSelection>>();
     @Output() dimensionChange = new EventEmitter();
     @Output() errorEvent = new EventEmitter();
 
@@ -57,7 +61,8 @@ export class TofHead implements OnChanges {
     constructor (
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private toastService: ToastService,
-        private authService: AuthService
+        private authService: AuthService,
+        private modalService: UniModalService
     ) {}
 
     ngOnInit() {
@@ -146,6 +151,25 @@ export class TofHead implements OnChanges {
 
     isReadOnly(): boolean {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
+    }
+
+    public addMultipleCustomer(): void {
+        const data: {customers?: any, customer?: any} = {};
+        if (this.customers?.length) {
+            data.customers = this.customers;
+        } else {
+            data.customer = this.data?.Customer;
+        }
+
+        this.modalService.open(SelectCustomersModal, {data}).onClose.subscribe(selectedCustomers => {
+            if (selectedCustomers?.length) {
+                this.customers = selectedCustomers;
+            } else if (selectedCustomers) { // Empty array, not null
+                this.customers = [];
+            }
+            this.multipleCustomersEvent.emit(this.customers)
+            this.dataChange.emit(this.data);
+        });
     }
 
     public getValidationMessage(customerID: number, dimensionsID: number = null, dimensions: Dimensions = null) {

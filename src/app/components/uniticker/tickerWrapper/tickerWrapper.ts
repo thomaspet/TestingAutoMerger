@@ -12,6 +12,7 @@ import {
 } from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
 import { UniTickerContainer } from '@app/components/uniticker/tickerContainer/tickerContainer';
+import {ITableFilter} from '@uni-framework/ui/unitable';
 declare const _; // lodash
 
 @Component({
@@ -25,6 +26,7 @@ export class UniTickerWrapper {
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
     @Input() public disableSubTickers = false;
+    @Input() public tableFilters: ITableFilter[];
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
     private tickers: Array<Ticker>;
     public selectedTicker: Ticker;

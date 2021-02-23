@@ -2,7 +2,7 @@
 <input type="text" class="table-focus-helper" tabindex="0" (focus)="onFocus()">
 
 <table-filters-and-buttons
-    *ngIf="config?.searchable"
+    *ngIf="config?.searchable || config?.buttons"
     [tableConfig]="config"
     [columns]="columns"
     [filters]="dataService?.advancedSearchFilters"
@@ -70,7 +70,6 @@
         [blockLoadDebounceMillis]="250"
         [suppressContextMenu]="true"
         [enableCellChangeFlash]="true"
-
         [pagination]="usePagination"
         [paginationPageSize]="config?.pageSize"
         (paginationChanged)="onPaginationChange($event)"

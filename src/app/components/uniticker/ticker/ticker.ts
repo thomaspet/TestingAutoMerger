@@ -55,6 +55,7 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {ITableFilter} from '@uni-framework/ui/ag-grid/interfaces';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -82,13 +83,14 @@ export class UniTicker {
     @Input() public expressionFilters: Array<IExpressionFilterValue> = [];
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
+    @Input() public tableFilters: ITableFilter[];
 
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
     @Output() public rowSelectionChange: EventEmitter<any> = new EventEmitter();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
     @Output() public tickerDataLoaded: EventEmitter<any> = new EventEmitter();
-    
+
 
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
@@ -701,7 +703,9 @@ export class UniTicker {
             const params = action.SendParentModel ? this.parentModel : selectedRows;
             actionOverride.ExecuteActionHandler(params).then(() => {
                     // refresh table data after actions/transitions are executed
-                    this.reloadData();
+                    if (action.Type.toLowerCase() !== 'localfunction') {
+                        this.reloadData();
+                    }
 
                     // execute AfterExecuteActionHandler if it is specified
                     this.afterExecuteAction(action, actionOverride, selectedRows);
@@ -1373,7 +1377,6 @@ export class UniTicker {
                 }
             });
         }
-
         let config = new UniTableConfig(configStoreKey, false, false, this.parentModel ? 5 : 30)
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
@@ -1383,6 +1386,7 @@ export class UniTicker {
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
             .setSearchable(true)
+            .setFilters(this.tableFilters)
             .setIsRowReadOnly(row => {
                 if (!this.ticker.ReadOnlyCases) {
                     return false;

@@ -1,4 +1,5 @@
-import {ICellRendererParams} from 'ag-grid-community';
+import {GridApi, ICellRendererParams} from 'ag-grid-community';
+import {Subject} from 'rxjs';
 import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
 let config;
@@ -192,51 +193,63 @@ export class HeaderMenuRenderer {
 }
 
 export class HeaderCheckbox {
+    gridApi: GridApi
     element: HTMLElement;
     selectOnlyVisible: boolean;
 
+    updateDebouncer = new Subject();
+
+    updateCheckboxState = () => {
+        let numberOfRows = 0;
+        if (this.selectOnlyVisible) {
+            numberOfRows = this.gridApi.getRenderedNodes().length;
+        } else {
+            this.gridApi.forEachNode(() => numberOfRows++);
+        }
+
+        const selectedRows = this.gridApi.getSelectedNodes();
+        const allRowsSelected = numberOfRows && selectedRows?.length >= numberOfRows;
+
+        if (allRowsSelected) {
+            this.element.classList.add('checked');
+        } else {
+            this.element.classList.remove('checked');
+        }
+    }
+
     init(params: ICellRendererParams) {
+        this.gridApi = params.api;
         this.selectOnlyVisible = config && config.selectOnlyVisible;
 
         const el = document.createElement('label');
         el.classList.add('header-checkbox');
-
-        let numberOfRows = 0;
-        if (this.selectOnlyVisible) {
-            numberOfRows = params.api.getRenderedNodes().length;
-        } else {
-            params.api.forEachNode(() => numberOfRows++);
-        }
-
-        const selectedRows = params.api.getSelectedNodes();
-        const allRowsSelected = selectedRows && numberOfRows && selectedRows.length >= numberOfRows;
-        if (allRowsSelected) {
-            el.classList.add('checked');
-        }
 
         el.onclick = () => {
             let checked = el.classList.contains('checked');
             checked = !checked;
 
             if (checked) {
-                el.classList.add('checked');
                 if (this.selectOnlyVisible) {
                     params.api.getRenderedNodes().forEach(row => row.setSelected(true));
                 } else {
                     params.api.forEachNode(row => row.setSelected(true));
                 }
             } else {
-                el.classList.remove('checked');
                 params.api.forEachNode(row => row.setSelected(false));
             }
         };
 
         this.element = el;
+
+        this.updateCheckboxState();
+        this.gridApi.addEventListener('modelUpdated', this.updateCheckboxState);
     }
 
     getGui() {
         return this.element;
     }
 
-    destroy() {}
+    destroy() {
+        this.gridApi.removeEventListener('modelUpdated', this.updateCheckboxState);
+    }
 }

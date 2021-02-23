@@ -20,6 +20,7 @@ import {
     ITickerActionOverride,
     ITickerColumnOverride
 } from '@app/services/common/uniTickerService';
+import {ITableFilter} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'uni-ticker-container',
@@ -36,12 +37,13 @@ export class UniTickerContainer {
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
     @Input() public disableSubTickers = false;
+    @Input() public tableFilters: ITableFilter[];
 
     @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
     @Output() public rowSelectionChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
     @Output() public tickerDataLoaded: EventEmitter<any> = new EventEmitter();
-    
+
     public showSubTickers: boolean;
     public filters: TickerFilter[];
     public selectedFilter: TickerFilter;
