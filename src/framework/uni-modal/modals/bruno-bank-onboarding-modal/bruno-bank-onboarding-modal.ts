@@ -28,8 +28,8 @@ export class BrunoBankOnboardingModal {
 
     openExternalOnboarding() {
         let url = this.orderKID
-            ? 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true'
-            : 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&utbetalingerval=true';
+            ? 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=DNBRegnskap&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true'
+            : 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=DNBRegnskap&kontoinfoval=true&utbetalingerval=true';
 
         if (this.bankIntegrationUserName) {
             url += `&userid=${this.bankIntegrationUserName}`;
