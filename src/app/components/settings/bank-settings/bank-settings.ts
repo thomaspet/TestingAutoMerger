@@ -212,7 +212,7 @@ export class UniBankSettings {
     }
 
     setRGBValues(agreements: any[]) {
-        const preApprovedBankPayments = agreements[0].PreApprovedBankPayments;
+        const preApprovedBankPayments = agreements?.length > 0 ? agreements[0]?.PreApprovedBankPayments : null;
 
         this.RGBValues.rgb = preApprovedBankPayments === PreApprovedPaymentCodes.WaitForBankApprove
                           || preApprovedBankPayments === PreApprovedPaymentCodes.Active;
