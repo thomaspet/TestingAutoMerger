@@ -31,7 +31,7 @@ import {
     MatchSubAccountManualModal,
     MatchMainAccountModal,
 } from './modals';
-import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, UserDto } from '../../unientities';
+import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, UserDto, UserRole } from '../../unientities';
 import { saveAs } from 'file-saver';
 import { UniPaymentEditModal } from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -124,6 +124,7 @@ export class BankComponent {
     private useTwoFactor: boolean;
     private isZDataV3: boolean;
     private hasBrunoRGB: boolean;
+    private userRoles: UserRole[];
     onDestroy$ = new Subject();
     hasAccessToAutobank: boolean;
     hasActiveAgreement: boolean;
@@ -356,10 +357,11 @@ export class BankComponent {
                 this.user = auth.user;
                 Observable.forkJoin([
                     this.companySettingsService.getCompanySettings(['TaxBankAccount']),
-                    this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
+                    this.userRoleService.getRolesByUserID(this.authService.currentUser.ID)
                 ]).subscribe(settings => {
                     this.companySettings = settings[0];
-                    this.isAdmin = settings[1];
+                    this.userRoles = settings[1];
+                    this.isAdmin = this.userRoles?.some(role => role.SharedRoleName === 'Administrator') || false;
 
                     if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
@@ -648,12 +650,12 @@ export class BankComponent {
         this.actions = [];
         const allRowsSelected = this?.tickerContainer?.mainTicker?.table?.allRowsSelected;
         if (selectedTickerCode === 'payment_list') {
-            const hasBankUserName = theme.theme !== THEMES.EXT02 && !this.isZDataV3 ? !!this.user?.BankIntegrationUserName : true;
+            const isAllowedToPayDirectly = this.userRoles?.some(role => role.SharedRoleName === 'Bank.Admin' || role.SharedRoleName === 'Bank.Payment') || theme.theme === THEMES.EXT02;
             this.actions.push({
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false, allRowsSelected),
                 main: this.hasActiveAgreement && this.canEdit && !this.rows.length && !allRowsSelected,
-                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected || !hasBankUserName
+                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected || !isAllowedToPayDirectly
             });
 
             this.actions.push({
@@ -690,7 +692,7 @@ export class BankComponent {
                 label: 'Send til betaling',
                 action: (done) => this.pay(done, false, allRowsSelected),
                 main: (this.rows.length > 0 || allRowsSelected) && this.canEdit,
-                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit || !hasBankUserName
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit || !isAllowedToPayDirectly
             });
 
             this.actions.push({
