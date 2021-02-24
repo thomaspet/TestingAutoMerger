@@ -3,7 +3,7 @@
         <header style="font-weight: 500; border-bottom: 1px solid var(--border-color); padding: 1.5rem 1rem;">
             Kunde{{customers?.length > 1 ? "r" : ""}}
             <button 
-                *ngIf="entityName === 'CustomerInvoice' && (customers?.length <= 1 || !customers) && (data?.StatusCode === 42001 || data?.StatusCode === null)"
+                *ngIf="entityName === 'CustomerInvoice' && (customers?.length <= 1 || !customers) && [42001, 10001, null].includes(data?.StatusCode)"
                 style="margin-left: auto; padding-right: 0; "
                 class="tertiary c2a" (click)="addMultipleCustomer()">
                 + Legg til flere

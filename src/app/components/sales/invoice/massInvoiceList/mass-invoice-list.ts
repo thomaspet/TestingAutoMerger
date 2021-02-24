@@ -2,7 +2,7 @@ import { HttpParams } from "@angular/common/http";
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { ErrorService, MassInvoiceService, StatisticsService } from "@app/services/services";
-import { BatchInvoice, StatusCode } from "@uni-entities";
+import { BatchInvoice, StatusCode, StatusCodeSharing } from "@uni-entities";
 import { AgGridWrapper } from "@uni-framework/ui/ag-grid/ag-grid-wrapper";
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from "@uni-framework/ui/unitable";
 import { ToastService, ToastType } from "@uni-framework/uniToast/toastService";
@@ -261,15 +261,15 @@ export class MassInvoiceList {
                     .setWidth('9rem')
                     .setAlias("SharingStatus")
                     .setStatusMap({
-                        [70000]: 'I kø',
-                        [70001]: 'I kø',
-                        [70003]: { label: 'Sendt', class: 'good' },
-                        [70004]: {
+                        [StatusCodeSharing.Pending]: 'I kø',
+                        [StatusCodeSharing.InProgress]: 'I kø',
+                        [StatusCodeSharing.Completed]: { label: 'Sendt', class: 'good' },
+                        [StatusCodeSharing.Cancelled]: {
                             label: 'Avbrøte',
                             class: 'warn',
                             tooltip: row => row.SharingMessage || "Mangler statusmelding"
                         },
-                        [70002]: {
+                        [StatusCodeSharing.Failed]: {
                             label: 'Feilet',
                             class: 'bad',
                             tooltip: row => {

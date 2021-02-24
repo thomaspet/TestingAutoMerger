@@ -1628,7 +1628,7 @@ export class InvoiceDetails implements OnInit {
         }
 
         if (this.customers?.length > 1
-            && [StatusCodeCustomerInvoice.Draft, null].includes(this.invoice.StatusCode)
+            && [StatusCodeCustomerInvoice.Draft, StatusCode.Draft, null].includes(this.invoice.StatusCode)
             && this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
             this.saveActions.push({
                 label: `Fakturer(${this.customers.length}) og send`,
@@ -1977,22 +1977,23 @@ export class InvoiceDetails implements OnInit {
             data: { customers: this.customers, invoice }
         }).onClose
         .finally(() => done(null))
-        .subscribe((res: {customers: MultipleCustomerSelection[], invoice: CustomerInvoice, notifyEmail: boolean, success: boolean}) => {
+        .subscribe((res: {customers?: MultipleCustomerSelection[], invoice?: CustomerInvoice, notifyEmail?: boolean, success?: boolean}) => {
             if (!res?.success) return;
 
             const { customers, invoice, notifyEmail } = res;
-            this.customers = customers;
 
-            if (refreshInvoice) {
-                if (!customers || customers.length <= 1)  {
-                    this.customerService.Get(customers[0].ID, this.customerExpands)
-                        .subscribe(customer => {
-                            this.currentCustomer = customer;
-                            this.invoice.Customer = customer
+            if (customers) {
+                this.customers = customers;
+            }
 
-                            this.refreshInfo(invoice);
-                    })
-                }
+            if (refreshInvoice && customers?.length === 1) {
+                this.customerService.Get(customers[0].ID, this.customerExpands)
+                    .subscribe(customer => {
+                        this.currentCustomer = customer;
+                        this.invoice.Customer = customer
+
+                        this.refreshInfo(invoice);
+                })
             }
 
             const r = customers?.length > 1 ? "r" : "";
