@@ -158,12 +158,12 @@ export class UniBankSettings {
     }
 
     loadAccountsDataAndInit() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
             this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
             this.paymentBatchService.checkAutoBankAgreement()
-        ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
+        ]).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
 
             this.agreements = agreements;
             this.setRGBValues(agreements);
@@ -203,7 +203,7 @@ export class UniBankSettings {
     }
 
     setRGBValues(agreements: any[]) {
-        const preApprovedBankPayments = agreements[0]?.PreApprovedBankPayments;
+        const preApprovedBankPayments = agreements?.length > 0 ? agreements[0]?.PreApprovedBankPayments : null;
 
         this.RGBValues.rgb = preApprovedBankPayments === 700003 || preApprovedBankPayments === 700005;
 
