@@ -101,9 +101,10 @@ export class ToPaymentModal implements IUniModal {
 
             this.VALUE_ITEMS = this.getValueItems();
             this.userRoleService.GetAll(`filter=userid eq ${this.authService.currentUser.ID}`).subscribe(roles => {
-                let hasBankPaymentRole = roles.some(r => r.SharedRoleName === 'Bank.Payment');
-                if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 ||
-                (!hasBankPaymentRole && theme.theme !== THEMES.EXT02) || (!this.isZDataV3 && theme.theme !== THEMES.EXT02)) {
+                const isAllowedToPayDirectly = roles?.some(role => role.SharedRoleName === 'Bank.Admin' || role.SharedRoleName === 'Bank.Payment') || theme.theme === THEMES.EXT02;
+                const hasActiveAgreement = agreements?.length && agreements.filter(agreement => agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
+
+                if (!hasActiveAgreement || !isAllowedToPayDirectly) {
                     this.VALUE_ITEMS[0].disabled = true;
                     this.valueItemSelected(this.VALUE_ITEMS[1]);
                 }
