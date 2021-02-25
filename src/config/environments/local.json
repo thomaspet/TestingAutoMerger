@@ -7,7 +7,7 @@
     "post_logout_redirect_uri": "/#/login",
     "zdataauthority": "https://id-dev.zdata.no",
 
-    "BASE_URL_INIT": "https://localhost:29077",
+    "BASE_URL_INIT": "http://localhost:29077",
     "BASE_URL": "http://localhost:29077",
     "BASE_URL_INTEGRATION": "https://dev-integrations.unieconomy.no/",
     "BASE_URL_FILES": "https://dev-unifiles.unieconomy.no",
