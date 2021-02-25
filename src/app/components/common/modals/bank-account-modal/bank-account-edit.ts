@@ -3,7 +3,7 @@ import {forkJoin, Observable} from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {BankAccount, CompanySettings} from '@app/unientities';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {BankService, ErrorService, BankAccountService, StatisticsService, ElsaContractService} from '@app/services/services';
+import {BankService, ErrorService, BankAccountService, StatisticsService, ElsaContractService, NumberFormat} from '@app/services/services';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {BehaviorSubject} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
@@ -69,6 +69,7 @@ export class CompanyBankAccountEdit {
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private authService: AuthService,
         private elsaContractService: ElsaContractService,
+        private numberFormat: NumberFormat,
     ) {}
 
     public ngOnChanges() {
@@ -394,7 +395,7 @@ export class CompanyBankAccountEdit {
             {
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.BANKACCOUNT,
                 ReadOnly: this.bankAccount['_count'],
                 Label: 'Kontonummer',
             },
@@ -420,7 +421,7 @@ export class CompanyBankAccountEdit {
             {
                 EntityType: 'BankAccount',
                 Property: 'IBAN',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.BANKACCOUNT,
                 ReadOnly: true,
                 Label: 'IBAN',
             },

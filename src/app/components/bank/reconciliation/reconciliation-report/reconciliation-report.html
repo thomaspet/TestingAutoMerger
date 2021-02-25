@@ -6,7 +6,7 @@
                 <span>Bankkonto</span>
                 <select [(ngModel)]="currentAccount" (change)="getDataAndLoadList()">
                     <option *ngFor="let account of bankAccounts" [ngValue]="account">
-                        {{ account.AccountNumber }} - {{ account.AccountName }}
+                        {{ account.AccountNumber | uninumberformat: 'bankacct' }} - {{ account.AccountName }}
                     </option>
                 </select>
             </label>
@@ -28,7 +28,7 @@
 
         <span class="bank-info-box">
             <span> {{ currentAccount.BankName }}</span>
-            <span> {{ currentAccount.BankAccountNumber }} </span>
+            <span> {{ currentAccount.BankAccountNumber | uninumberformat: 'bankacct' }} </span>
         </span>
 
     </section>

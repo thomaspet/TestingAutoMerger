@@ -74,6 +74,7 @@ import {
     FileService,
     JournalEntryService,
     ModulusService,
+    NumberFormat,
     PageStateService,
     PaymentService,
     ProjectService,
@@ -270,6 +271,7 @@ export class BillView implements OnInit, AfterViewInit {
         private statisticsService: StatisticsService,
         private accountService: AccountService,
         private assetsService: AssetsService,
+        private numberFormat: NumberFormat,
     ) {
         this.actions = this.rootActions;
 
@@ -722,8 +724,7 @@ export class BillView implements OnInit, AfterViewInit {
                 });
             }),
             display: (bankAccount: BankAccount) => {
-                let ret = bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
-                + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+                let ret = this.numberFormat.asBankAcct(bankAccount?.AccountNumber);
                 if (bankAccount['Label']) {
                     ret = bankAccount['Label'] + '-' + ret;
                 }
@@ -863,7 +864,7 @@ export class BillView implements OnInit, AfterViewInit {
                     ? `BBAN ${invoice.BankAccount.AccountNumber}`
                     : `IBAN ${invoice.BankAccount.IBAN}`;
                 const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: `Vil du opprette bankkonto ${bbanoriban}?`,
+                    header: `Vil du opprette bankkonto ${this.numberFormat.asBankAcct(bbanoriban)}?`,
                     message: `Kontonr er ikke registrert på leverandøren ${invoice.InvoiceReceiverName}`,
                     buttonLabels: {
                         accept: 'Opprett konto',
@@ -1135,7 +1136,7 @@ export class BillView implements OnInit, AfterViewInit {
 
 
             const modal = this.modalService.open(UniConfirmModalV2, {
-                header: `Vil du opprette bankkonto ${bankAccountNumber}?`,
+                header: `Vil du opprette bankkonto ${this.numberFormat.asBankAcct(bankAccountNumber)}?`,
                 message: `Kontonr er ikke registrert på leverandøren ${supplier.Info.Name}`,
                 buttonLabels: {
                     accept: 'Opprett konto',

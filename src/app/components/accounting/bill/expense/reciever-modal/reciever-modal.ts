@@ -5,7 +5,8 @@ import {
     SupplierService,
     NumberSeriesTypeService,
     AccountService,
-    CompanySettingsService
+    CompanySettingsService,
+    NumberFormat
 } from '@app/services/services';
 import {FieldType, Address} from '@uni-entities';
 import {
@@ -52,6 +53,7 @@ export class RecieverModal implements IUniModal {
         private numberSeriesTypeService: NumberSeriesTypeService,
         private accountService: AccountService,
         private companySettings: CompanySettingsService,
+        private numberFormat: NumberFormat,
     ) {}
 
     ngOnInit() {
@@ -300,7 +302,8 @@ export class RecieverModal implements IUniModal {
                 Options: {
                     entity: BankAccount,
                     listProperty: 'Info.BankAccounts',
-                    displayValue: 'AccountNumber',
+                    // displayValue: 'AccountNumber',
+                    template: field => this.numberFormat.asBankAcct(field),
                     linkProperty: 'ID',
                     storeResultInProperty: 'Info.DefaultBankAccount',
                     storeIdInProperty: 'Info.DefaultBankAccountID',

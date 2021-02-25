@@ -6,6 +6,7 @@ import {
     BankService,
     BankAccountService,
     UniFilesService,
+    NumberFormat,
 } from '@app/services/services';
 import {OcrValuables} from '@app/models/accounting/ocr';
 import {SupplierInvoice, LocalDate, Supplier, BankAccount, BusinessRelation} from '@uni-entities';
@@ -43,6 +44,7 @@ export class OCRHelper {
         private modalService: UniModalService,
         private bankService: BankService,
         private bankAccountService: BankAccountService,
+        private numberFormat: NumberFormat,
     ) {}
 
     async runOcr(file, invoice: SupplierInvoice) {
@@ -189,7 +191,7 @@ export class OCRHelper {
 
     private async createAccountOnSupplier(accountNumber: string, supplier: Supplier): Promise<Account> {
         const response = await this.modalService.confirm({
-            header: `Vil du opprette bankkonto ${accountNumber}?`,
+            header: `Vil du opprette bankkonto ${this.numberFormat.asBankAcct(accountNumber)}?`,
             message: `Kontonr er ikke registrert på leverandøren ${supplier.Info.Name}`,
             buttonLabels: {
                 accept: 'Opprett konto',

@@ -876,7 +876,7 @@ export class UniTicker {
 
                     this.tableConfig = this.buildTableConfig();
                     this.cdr.markForCheck();
-                    resolve();
+                    resolve(null);
                 });
             });
         });
@@ -997,6 +997,8 @@ export class UniTicker {
                             break;
                         case 'attachment':
                             colType = UniTableColumnType.Text;
+                        case 'bankaccount':
+                            colType = UniTableColumnType.BankAccount;
                     }
                 }
 

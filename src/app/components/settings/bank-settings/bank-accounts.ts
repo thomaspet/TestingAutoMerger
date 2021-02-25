@@ -88,17 +88,8 @@ export class BankSettingsAccountlist {
             .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('Label', 'Navn', UniTableColumnType.Text),
-                new UniTableColumn('AccountNumber', 'Kontonr', UniTableColumnType.Text)
-                    .setTemplate(row => {
-                        const value = row.AccountNumber;
-                        if (value && value.length === 11) {
-                            const match = /(\d{4})(\d{2})(\d{5})/.exec(value);
-                            if (match) {
-                                return match.splice(1).join(' ');
-                            }
-                        }
-                        return value;
-                    }).setWidth('5rem'),
+                new UniTableColumn('AccountNumber', 'Kontonr', UniTableColumnType.BankAccount)
+                    .setWidth('5rem'),
                 new UniTableColumn('Account.AccountName', 'Hovedbokskonto', UniTableColumnType.Text)
                     .setTemplate(row => row.Account?.AccountNumber + ' - ' + row.Account?.AccountName),
                 new UniTableColumn('BankAccountType', 'Type', UniTableColumnType.Text)

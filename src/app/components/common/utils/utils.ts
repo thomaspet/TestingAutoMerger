@@ -19,7 +19,9 @@ export enum ControlTypes {
     MultivalueInput = 14,
     UrlInput = 15,
     TextareaInput = 16,
-    LocalDate = 17
+    LocalDate = 17,
+
+    BANKACCOUNT = 23,
 }
 
 export enum FieldSize {

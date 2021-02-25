@@ -22,8 +22,8 @@
         <section class="warning" *ngIf="session.payment.Mode == 2 && withPayment">
             <strong>Utbetaling:</strong>
             <table width="100%">
-                <tr><td>- fra selskapets bankkonto</td><td class="right">{{session.payment?.SystemBankAccount?.AccountNumber}}</td></tr>
-                <tr><td>- til {{session.payment?.PaymentTo?.AccountName}}'s' bankkonto:</td><td class="right">{{session.payment?.PaymentAccount?.AccountNumber}}</td><tr>
+                <tr><td>- fra selskapets bankkonto</td><td class="right">{{session.payment?.SystemBankAccount?.AccountNumber | uninumberformat: 'bankacct'}}</td></tr>
+                <tr><td>- til {{session.payment?.PaymentTo?.AccountName}}'s' bankkonto:</td><td class="right">{{session.payment?.PaymentAccount?.AccountNumber | uninumberformat: 'bankacct'}}</td><tr>
             </table>
         </section>
 

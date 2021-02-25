@@ -13,7 +13,7 @@
                 <select [(ngModel)]="selectedAccountID">
                     <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount.AccountID">
                         {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
-                        ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                        ({{(bankAccount.AccountNumber | uninumberformat: 'bankacct') || (bankAccount.IBAN | uninumberformat: 'bankacct')}})
                     </option>
                 </select>
             </label>

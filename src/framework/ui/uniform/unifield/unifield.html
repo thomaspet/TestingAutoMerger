@@ -222,6 +222,14 @@
              (inputEvent)="onInputHandler($event)"
              (focusEvent)="onFocusHandler($event)">
         </month-picker-input>
+
+        <uni-bankaccount-input #selectedComponent
+            *ngSwitchCase="23"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (changeEvent)="onChangeHandler($event)">
+        </uni-bankaccount-input>
     </ng-container>
 </label>
 

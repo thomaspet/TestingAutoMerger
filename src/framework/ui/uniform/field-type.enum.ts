@@ -19,5 +19,6 @@ export enum FieldType {
     UNI_MULTISELECT = 19,
     STATIC_TEXT = 20,
     TYPEAHEAD = 21,
-    MONTH_PICKER = 22
+    MONTH_PICKER = 22,
+    BANKACCOUNT = 23,
 }

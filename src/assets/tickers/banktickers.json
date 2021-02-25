@@ -34,12 +34,14 @@
             {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
+                "Type": "bankaccount",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Konto til",
                 "Field": "ToBankAccount.AccountNumber",
                 "FilterOperator": "contains",
+                "Type": "bankaccount",
                 "IsBankRuleField": true
             },
             {
@@ -412,12 +414,14 @@
             },
             {
                 "Header": "Konto fra",
+                "Type": "bankaccount",
                 "Field": "FromBankAccount.AccountNumber",
                 "FilterOperator": "contains",
                 "SelectRequired": true
             },
             {
                 "Header": "Konto til",
+                "Type": "bankaccount",
                 "Field": "ToBankAccount.AccountNumber",
                 "FilterOperator": "contains",
                 "SelectRequired": true

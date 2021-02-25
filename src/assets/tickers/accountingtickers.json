@@ -943,6 +943,7 @@
             {
                 "Header": "Bankkonto",
                 "Field": "Info.DefaultBankAccount.AccountNumber",
+                "Type": "bankaccount",
                 "DefaultHidden": true
             }
         ],
@@ -1108,6 +1109,7 @@
             },
             {
                 "Header": "Bankkonto",
+                "Type": "bankaccount",
                 "Field": "Info.DefaultBankAccount.AccountNumber"
             },
             {

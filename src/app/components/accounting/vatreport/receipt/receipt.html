@@ -54,7 +54,7 @@
             </tr>
             <tr>
                 <th>Til konto</th>
-                <td>{{vatReport?.VatReportArchivedSummary?.PaymentBankAccountNumber | uniaccountnumber}}</td>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentBankAccountNumber | uninumberformat: 'bankacct'}}</td>
             </tr>
         </table>
     </article>

@@ -34,7 +34,8 @@ import {
     ModulusService,
     JournalEntryLineService,
     CostAllocationService,
-    PageStateService
+    PageStateService,
+    NumberFormat
 } from '../../../../services/services';
 
 import {
@@ -173,6 +174,7 @@ export class SupplierDetails implements OnInit {
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
         private costAllocationService: CostAllocationService,
+        private numberFormat: NumberFormat,
     ) {}
 
     public ngOnInit() {
@@ -901,7 +903,8 @@ export class SupplierDetails implements OnInit {
                 Options: {
                     entity: BankAccount,
                     listProperty: 'Info.BankAccounts',
-                    displayValue: 'AccountNumber',
+                    // displayValue: 'AccountNumber',
+                    template: field => this.numberFormat.asBankAcct(field),
                     linkProperty: 'ID',
                     storeResultInProperty: 'Info.DefaultBankAccount',
                     storeIdInProperty: 'Info.DefaultBankAccountID',

@@ -1,17 +1,20 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {UniTableColumnType} from './config/unitableColumn';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';
+import { NumberFormat } from '@app/services/services';
 
-@Pipe({
-  name: 'unitablepipe'
-})
-export class UniTablePipe implements PipeTransform {
+@Injectable({
+    providedIn: 'root',
+  })
+export class UniTablePipe {
     private numericColTypes = [
         UniTableColumnType.Number,
         UniTableColumnType.Money,
         UniTableColumnType.Percent
     ];
+
+    constructor(private numberFormat: NumberFormat) {}
 
     public transform(value: any, column: Immutable.Map<any, any>) {
         try {
@@ -61,6 +64,10 @@ export class UniTablePipe implements PipeTransform {
                 } else if (parsedValue === null) {
                     parsedValue = 'Nei';
                 }
+            }
+
+            if (colType === UniTableColumnType.BankAccount) {
+                parsedValue = this.numberFormat.asBankAcct(parsedValue);
             }
 
             if (this.numericColTypes.indexOf(colType) >= 0 && parsedValue) {

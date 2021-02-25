@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {IModalOptions, IUniModal, UniModalService, UniBankAccountModal} from '@uni-framework/uni-modal';
-import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {IModalOptions, IUniModal, UniModalService} from '@uni-framework/uni-modal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {
     CompanySettingsService,
     BankService,
@@ -9,6 +9,7 @@ import {
     ErrorService,
     ElsaContractService,
     ElsaAgreementService,
+    NumberFormat,
 } from '@app/services/services';
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
@@ -91,6 +92,7 @@ export class BankInitModal implements IUniModal, OnInit {
         private elsaContractService: ElsaContractService,
         private elsaAgreementService: ElsaAgreementService,
         private sanitizer: DomSanitizer,
+        private numberFormat: NumberFormat,
     ) {}
 
     ngOnInit() {
@@ -333,7 +335,8 @@ export class BankInitModal implements IUniModal, OnInit {
                 Options: {
                     entity: 'BankAccount',
                     listProperty: 'BankAccounts',
-                    displayValue: 'AccountNumber',
+                    // displayValue: 'AccountNumber',
+                    template: field => this.numberFormat.asBankAcct(field?.AccountNumber),
                     linkProperty: 'ID',
                     storeResultInProperty: accountType.field,
                     storeIdInProperty: accountType.field + 'ID',

@@ -7,6 +7,7 @@ import {
     BankAccountService,
     UniFilesService,
     EHFService,
+    NumberFormat,
 } from '@app/services/services';
 import {OcrValuables, IOcrServiceResult} from '@app/models/accounting/ocr';
 import {SupplierInvoice, LocalDate, Supplier, File, BankAccount, BusinessRelation} from '@uni-entities';
@@ -34,6 +35,7 @@ export class OCRHelperClass {
         private bankService: BankService,
         private ehfService: EHFService,
         private bankAccountService: BankAccountService,
+        private numberFormat: NumberFormat,
     ) {}
 
     runOcr(file, invoice: SupplierInvoice, ignoreSupplier: boolean = false) {
@@ -252,7 +254,7 @@ export class OCRHelperClass {
 
     private createBankAccount(accountNumber: string, supplier: Supplier): Observable<BankAccount> {
         return this.modalService.confirm({
-            header: `Vil du opprette bankkonto ${accountNumber}?`,
+            header: `Vil du opprette bankkonto ${this.numberFormat.asBankAcct(accountNumber)}?`,
             message: `Kontonr er ikke registrert på leverandøren ${supplier.Info.Name}`,
             buttonLabels: {
                 accept: 'Opprett konto',

@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, PaymentBatch } from '@uni-entities';
-import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService, UserRoleService, UserService } from '@app/services/services';
+import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService, UserRoleService, NumberFormat } from '@app/services/services';
 import { ActionContinueWithTwoFactor, ActionOnReload } from '../../journal-and-pay-helper';
 import { of, Observable, BehaviorSubject } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
@@ -9,7 +9,6 @@ import { FieldType } from '@uni-framework/ui/uniform';
 import {theme, THEMES} from 'src/themes/theme';
 import {environment} from 'src/environments/environment';
 import { AuthService } from '@app/authService';
-import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 import { BankAgreementServiceProvider } from '@uni-models/autobank-models';
 
@@ -54,7 +53,7 @@ export class ToPaymentModal implements IUniModal {
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
         private authService: AuthService,
-        private uniAccountNumberPipe: UniAccountNumberPipe,
+        private numberFormat: NumberFormat,
         private uniAccountTypePipe: UniAccountTypePipe,
         private userRoleService: UserRoleService,
     ) {}
@@ -314,13 +313,13 @@ export class ToPaymentModal implements IUniModal {
                     valueProperty: 'ID',
                     template: (item) => {
                         return item?.Label
-                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                            ? (item.Label + ' - ' + this.numberFormat.asBankAcct(item?.BankAccountNumber))
                             : item?.BankAccountType
                                 ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
-                                    + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                                    + this.numberFormat.asBankAcct(item?.BankAccountNumber))
                                 : item?.BankAccountNumber
-                                    ? this.uniAccountNumberPipe.transform(item.BankAccountNumber)
+                                    ? this.numberFormat.asBankAcct(item.BankAccountNumber)
                                     : '';
                     },
                     debounceTime: 200,

@@ -111,6 +111,7 @@
             },
             {
                 "Header": "Bankkonto",
+                "Type": "bankaccount",
                 "Field" : "Customer.Info.DefaultBankAccount.AccountNumber",
                 "DefaultHidden": true
             }

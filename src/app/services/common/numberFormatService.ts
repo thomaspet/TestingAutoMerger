@@ -4,7 +4,7 @@ import {Injectable} from '@angular/core';
 const HAIRSPACE = '\u200A';
 const THINSPACE = ' ';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NumberFormat {
     public asPercentage(value: number, options: INumberOptions = {}): string {
         options = {
@@ -45,13 +45,23 @@ export class NumberFormat {
     public asBankAcct(value) {
         try {
             const valueAsString = value && value.toString();
+
             if (valueAsString && valueAsString.length === 11) {
-                const match = /(\d{4})(\d{2})(\d{5})/.exec(valueAsString);
-                if (match) {
-                    return match.splice(1).join(' ');
-                }
+                // return format 1503 50 26780 (with space)
+                return `${valueAsString.slice(0, 4)}${THINSPACE}${valueAsString.slice(4, 6)}${THINSPACE}${valueAsString.slice(6, 11)}`;
             }
-            return value;
+
+            if (valueAsString && valueAsString.length === 15) {
+                // Format to NO67 1503 83 66383
+                return [
+                    valueAsString.slice(0, 4),
+                    valueAsString.slice(4, 8),
+                    valueAsString.slice(8, 10),
+                    valueAsString.slice(10, 15),
+                ].join(THINSPACE);
+            }
+
+            return value || '';
         } catch (err) {
             console.error(err);
             return value;

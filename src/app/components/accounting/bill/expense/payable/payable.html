@@ -8,7 +8,7 @@
     </section>
     <label class="uni-label">
         <span>Bankkonto</span>
-        <input readonly type="text" [ngModel]="session.payment.PaymentAccount?.AccountNumber" >
+        <input readonly type="text" [ngModel]="session.payment.PaymentAccount?.AccountNumber | uninumberformat: 'bankacct'" >
     </label>
 
     <label class="uni-label">

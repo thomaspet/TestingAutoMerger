@@ -7,7 +7,8 @@ import {
     ErrorService,
     CompanySettingsService,
     BankService,
-    ElsaAgreementService
+    ElsaAgreementService,
+    NumberFormat
 } from '@app/services/services';
 import {Observable} from 'rxjs';
 import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
@@ -281,6 +282,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         private bankService: BankService,
         private elsaAgreementService: ElsaAgreementService,
         private sanitizer: DomSanitizer,
+        private numberFormat: NumberFormat,
     ) { }
 
     public ngOnInit() {
@@ -366,7 +368,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             source: this.accounts,
             valueProperty: 'ID',
             template: (item) => {
-                let returnString = item !== null  ? item.AccountNumber : '';
+                let returnString = item !== null  ? this.numberFormat.asBankAcct(item.AccountNumber) : '';
                 returnString += !!item.Bank ? ' - ' + item.Bank.Name : '';
                 return returnString;
             },

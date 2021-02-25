@@ -27,8 +27,8 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
-import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
+import { NumberFormat } from '@app/services/common/numberFormatService';
 
 @Component({
     selector: 'uni-register-payment-modal',
@@ -84,7 +84,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService,
-        private uniAccountNumberPipe: UniAccountNumberPipe,
+        private numberFormat: NumberFormat,
         private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
@@ -417,13 +417,13 @@ export class UniRegisterPaymentModal implements IUniModal {
                     valueProperty: 'ID',
                     template: (item) => {
                         return item?.Label
-                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.AccountNumber))
+                            ? (item.Label + ' - ' + this.numberFormat.asBankAcct(item?.AccountNumber))
                             : item?.BankAccountType
                                 ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
-                                    + this.uniAccountNumberPipe.transform(item?.AccountNumber))
+                                    + this.numberFormat.asBankAcct(item?.AccountNumber))
                                 : item?.AccountNumber
-                                    ? this.uniAccountNumberPipe.transform(item.AccountNumber)
+                                    ? this.numberFormat.asBankAcct(item.AccountNumber)
                                     : '';
                     },
                     debounceTime: 200,

@@ -16,7 +16,8 @@ import {
 import {
     StatisticsService,
     ErrorService,
-    BankAccountService
+    BankAccountService,
+    NumberFormat
 } from '../../../services/services';
 import {
     UniModalService,
@@ -29,7 +30,6 @@ import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/u
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { PaymentCodeService } from '@app/services/accounting/paymentCodeService';
-import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
@@ -88,7 +88,7 @@ export class AddPaymentModal implements IUniModal {
         private toastService: ToastService,
         private companySettingsService: CompanySettingsService,
         private paymentCodeService: PaymentCodeService,
-        private uniAccountNumberPipe: UniAccountNumberPipe,
+        private numberFormat: NumberFormat,
         private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
@@ -119,12 +119,12 @@ export class AddPaymentModal implements IUniModal {
             this.fromBankAccountsList = data[0];
             this.fromBankAccountsList.forEach(account => {
                 account['_displayValue'] = account.Label
-                    ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                    ? account.Label + ' - ' + this.numberFormat.asBankAcct(account.AccountNumber)
                     : account.BankAccountType
                         ? this.uniAccountTypePipe.transform(account.BankAccountType)
                             + ' - '
-                            + this.uniAccountNumberPipe.transform(account.AccountNumber)
-                        : this.uniAccountNumberPipe.transform(account.AccountNumber);
+                            + this.numberFormat.asBankAcct(account.AccountNumber)
+                        : this.numberFormat.asBankAcct(account.AccountNumber);
             });
             this.config.model['ToBankAccountsList'] = this.options.data.customerBankAccounts || data[1];
             this.paymentCodes = data[2];

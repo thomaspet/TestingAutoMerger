@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService} from '../../../app/services/services';
+import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService, NumberFormat} from '../../../app/services/services';
 import {UniModalService} from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {BehaviorSubject} from 'rxjs';
@@ -74,7 +74,8 @@ export class UniBankAccountModal implements IUniModal {
         private errorService: ErrorService,
         private toastService: ToastService,
         private bankAccountService: BankAccountService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private numberFormat: NumberFormat,
     ) {}
 
     public ngOnInit() {
@@ -452,7 +453,7 @@ export class UniBankAccountModal implements IUniModal {
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.BANKACCOUNT,
                 ReadOnly: true,
                 Label: 'Kontonummer',
             },
@@ -461,7 +462,7 @@ export class UniBankAccountModal implements IUniModal {
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'IBAN',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.BANKACCOUNT,
                 ReadOnly: true,
                 Label: 'IBAN',
             },

@@ -1,7 +1,7 @@
 import {Component, ErrorHandler} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {catchError} from 'rxjs/operators';
-import {StatisticsService, BankAccountService, PageStateService} from '@app/services/services';
+import {StatisticsService, BankAccountService, PageStateService, NumberFormat} from '@app/services/services';
 import {BankAccount, BankStatementMatch} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
@@ -17,7 +17,6 @@ import {Observable, of, throwError} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
-import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
@@ -57,7 +56,7 @@ export class BankReconciliation {
         private pageStateService: PageStateService,
         private toastService: ToastService,
         private permissionService: FeaturePermissionService,
-        private uniAccountNumberPipe: UniAccountNumberPipe,
+        private numberFormat: NumberFormat,
         private uniAccountTypePipe: UniAccountTypePipe,
     ) {
         tabService.addTab({
@@ -139,12 +138,12 @@ export class BankReconciliation {
                     if (this.bankAccounts.length) {
                         this.bankAccounts.forEach(account => {
                             account['_displayValue'] = account.Label
-                                ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                                ? account.Label + ' - ' + this.numberFormat.asBankAcct(account.AccountNumber)
                                 : account.BankAccountType
                                     ? this.uniAccountTypePipe.transform(account.BankAccountType)
                                         + ' - '
-                                        + this.uniAccountNumberPipe.transform(account.AccountNumber)
-                                    : this.uniAccountNumberPipe.transform(account.AccountNumber);
+                                        + this.numberFormat.asBankAcct(account.AccountNumber)
+                                    : this.numberFormat.asBankAcct(account.AccountNumber);
                         });
 
                         this.selectedBankAccount = this.bankAccounts[0];

@@ -6,7 +6,7 @@ import { SupplierInvoice, BankAccount } from '@uni-entities';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { UniModalService, UniBankAccountModal } from '@uni-framework/uni-modal';
 import { SupplierEditModal } from '@app/components/common/modals/edit-supplier-modal/edit-supplier-modal';
-import { StatisticsService, SupplierService, BankAccountService, ErrorService } from '@app/services/services';
+import { StatisticsService, SupplierService, BankAccountService, ErrorService, NumberFormat } from '@app/services/services';
 import { trigger, transition, animate, style, state, group } from '@angular/animations';
 
 @Component({
@@ -69,7 +69,8 @@ export class DetailsForm {
         private statisticsService: StatisticsService,
         private supplierService: SupplierService,
         private bankAccountService: BankAccountService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private numberFormat: NumberFormat,
     ) {
         this.store.invoice$
             .pipe(takeUntil(this.onDestroy$))
@@ -191,7 +192,8 @@ export class DetailsForm {
                 Options: {
                     entity: BankAccount,
                     listProperty: 'Supplier.Info.BankAccounts',
-                    displayValue: 'AccountNumber',
+                    // displayValue: 'AccountNumber',
+                    template: field => this.numberFormat.asBankAcct(field),
                     linkProperty: 'ID',
                     storeResultInProperty: 'BankAccount',
                     storeIdInProperty: 'BankAccountID',

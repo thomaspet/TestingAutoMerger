@@ -1,0 +1,21 @@
+<input
+    type="text"
+    [attr.aria-describedby]="asideGuid"
+    [(ngModel)]="inputValue"
+    [readonly]="readOnly"
+    [placeholder]="field?.Placeholder || ''"
+    (blur)="onBlur()"
+    [title]="inputValue || ''"
+    [attr.maxLength]="field?.MaxLength"
+    [autocomplete]="asideGuid"
+/>
+
+<!--
+    The use of [autocomplete]="asideGuid" is pretty hacky,
+    but its the most consistent way to disable browser autofill
+    which is causing a lot of issue with the current uniform..
+    TLDR: we already have too many components fighting about
+    who has the correct data, adding the browser autofill into this
+    mix breaks stuff more often than it helps..
+-->
+<ng-content></ng-content>

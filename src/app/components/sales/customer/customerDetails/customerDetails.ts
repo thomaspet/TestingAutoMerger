@@ -1432,10 +1432,11 @@ export class CustomerDetails implements OnInit {
                 Options: {
                     entity: BankAccount,
                     listProperty: 'Info.BankAccounts',
-                    displayValue: 'AccountNumber',
+                    // displayValue: 'AccountNumber',
                     linkProperty: 'ID',
                     storeResultInProperty: 'Info.DefaultBankAccount',
                     storeIdInProperty: 'Info.DefaultBankAccountID',
+                    template: data => this.numberFormat.asBankAcct(data?.AccountNumber),
                     editor: (bankaccount: BankAccount) => {
                         if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                             bankaccount = bankaccount || new BankAccount();

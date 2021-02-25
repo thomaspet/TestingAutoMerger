@@ -11,7 +11,6 @@ import {UniTableColumnMenu} from './columnMenu/columnMenu';
 import {UniTablePagination} from './pagination/pagination';
 import {UnitableContextMenu} from './contextMenu';
 import {UniTableSearch} from './search/search';
-import {UniTablePipe} from './unitablePipe';
 import {UniCalendar} from './controls/common/calendar';
 import {UniTableColumnConfigEditor} from './columnMenu/columnConfigEditor';
 import {UnitableTextInput} from './controls/text';
@@ -37,7 +36,7 @@ import { UniIconModule } from '../icon/uni-icon';
         UniPipesModule,
         UniTranslatePipesModule,
         InputDropdownModule,
-        UniIconModule
+        UniIconModule,
     ],
     declarations: [
         UniTable,
@@ -57,7 +56,6 @@ import { UniIconModule } from '../icon/uni-icon';
         UnitableSelect,
         LocalDatePicker,
 
-        UniTablePipe,
         ColumnTooltipPipe,
         ColumnMenuModal,
 
@@ -85,7 +83,6 @@ import { UniIconModule } from '../icon/uni-icon';
         UnitableSelect,
         LocalDatePicker,
 
-        UniTablePipe,
         ColumnTooltipPipe,
     ]
 })

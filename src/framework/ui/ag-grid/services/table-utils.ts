@@ -7,6 +7,7 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
 import {get, cloneDeep} from 'lodash';
 import * as moment from 'moment';
 import {theme} from 'src/themes/theme';
+import { NumberFormat } from '@app/services/services';
 
 interface SortModel { colId: string; sort: string; }
 
@@ -31,7 +32,9 @@ export class TableUtils {
     private savedSearchMap: SavedSearchMap = {};
     private sortMap: SortMap = {};
 
-    constructor(private featurePermissionService: FeaturePermissionService) {
+    constructor(
+        private featurePermissionService: FeaturePermissionService,
+        private numberFormat: NumberFormat) {
         const getSavedSettings = (key: string) => {
             try {
                 return JSON.parse(localStorage.getItem(key)) || {};
@@ -248,6 +251,10 @@ export class TableUtils {
                     value = `${format.prefix || ''}${value}${format.postfix || ''}`;
                 }
             break;
+
+            case UniTableColumnType.BankAccount:
+                return this.numberFormat.asBankAcct(value);
+
         }
 
         return value || '';

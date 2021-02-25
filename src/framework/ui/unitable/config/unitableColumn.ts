@@ -32,7 +32,8 @@ export enum UniTableColumnType {
     Checkbox = 15,
     Attachment = 16,
     Button = 17,
-    Icon = 18
+    Icon = 18,
+    BankAccount = 19,
 }
 
 export enum UniTableColumnSortMode {

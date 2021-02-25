@@ -9,7 +9,8 @@ import {
     CompanySettingsService,
     ErrorService,
     PaymentInfoTypeService,
-    ElsaProductService
+    ElsaProductService,
+    NumberFormat
 } from '../../../../src/app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -111,6 +112,7 @@ export class UniActivateEInvoiceModal implements IUniModal {
         private errorService: ErrorService,
         private toastService: ToastService,
         private elsaProductService: ElsaProductService,
+        private numberFormat: NumberFormat,
     ) {}
 
     public ngOnInit() {
@@ -290,7 +292,7 @@ export class UniActivateEInvoiceModal implements IUniModal {
             },
             <any> {
                 Property: 'accountNumber',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.BANKACCOUNT,
                 Label: 'Bankkontonr',
                 ReadOnly: true
             },

@@ -229,11 +229,17 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             return '';
         }
 
-        const value = this.field.Options.display
-            ? this.field.Options.display(row)
-            : _.get(row, this.field.Options.displayValue);
+        let value = '';
 
-        return value || '';
+        if (this.field.Options.template) {
+            value = this.template(row);
+        } else {
+            value = this.field.Options.display
+                ? this.field.Options.display(row)
+                : _.get(row, this.field.Options.displayValue);
+        }
+
+        return value;
     }
 
     public addNew(initValue?: string) {
@@ -483,6 +489,14 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             }
             this.filter += character;
             setTimeout(() => this.filterInput?.nativeElement.focus());
+        }
+    }
+
+    private template(obj: any) {
+        if (!this.field.Options.template) {
+            return _.get(obj, this.field.Options.displayProperty);
+        } else {
+            return this.field.Options.template(obj);
         }
     }
 }

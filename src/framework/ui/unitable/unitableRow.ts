@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {Router} from '@angular/router';
 import {IContextMenuItem} from './unitable';
-import {UniTableColumn, UniTableColumnType} from './config/unitableColumn';
+import {UniTableColumn} from './config/unitableColumn';
 import {UniTableConfig} from './config/unitableConfig';
 import {UniTablePipe} from './unitablePipe';
 import * as Immutable from 'immutable';
@@ -111,12 +111,14 @@ export class UniTableRow implements OnChanges {
     @ViewChild('contextMenuCell')
     private contextMenuCell: ElementRef;
 
-    public uniTablePipe: UniTablePipe = new UniTablePipe();
     public contextMenu: any;
     public singleItemMenu: boolean = true;
     public rowMenuItem: IContextMenuItem = undefined;
 
-    public constructor(private router: Router) {}
+    public constructor(
+        private router: Router,
+        private uniTablePipe: UniTablePipe) // used in the html, dont let the markup confuse
+    {}
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {

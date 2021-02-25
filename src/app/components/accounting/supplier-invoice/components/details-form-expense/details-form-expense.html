@@ -16,7 +16,7 @@
 		<label class="uni-label">
 			<span>Betalt fra</span>
 			<select [ngModel]="store.selectedBankAccount" (ngModelChange)="onChange($event)">
-				<option [ngValue]="acc" *ngFor="let acc of store?.bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
+				<option [ngValue]="acc" *ngFor="let acc of store?.bankAccounts" >{{acc.AccountNumber | uninumberformat: 'bankacct'}} {{acc.AccountName}} - {{acc.BankName}}</option>
 			</select>
 		</label>
 
@@ -48,7 +48,7 @@
 
 		<label class="uni-label">
 			<span>Betal til bankkonto</span>
-			<input readonly type="text" [ngModel]="supplierInvoice?.Supplier?.Info?.DefaultBankAccount?.AccountNumber" >
+			<input readonly type="text" [ngModel]="supplierInvoice?.Supplier?.Info?.DefaultBankAccount?.AccountNumber | uninumberformat: 'bankacct'" >
 		</label>
 
 		<label class="uni-label" >

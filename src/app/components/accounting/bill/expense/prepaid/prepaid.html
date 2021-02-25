@@ -2,7 +2,7 @@
     <span>Betalt fra</span>
     <select [ngModel]="selectedBankAccount" (ngModelChange)="onChange($event)" >
         <option *ngIf="busy">Henter bankkontoer...</option>
-        <option [ngValue]="acc" *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
+        <option [ngValue]="acc" *ngFor="let acc of bankAccounts" >{{acc.AccountNumber | uninumberformat: 'bankacct'}} {{acc.AccountName}} - {{acc.BankName}}</option>
     </select>
 </label>
 
