@@ -386,7 +386,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	setUpAssetsTable() {
-        this.assetsTableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', true, false, 20)
+        this.assetsTableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', !this.isCompleted, false, 20)
         .setAutoAddNewRow(false)
         .setColumns([
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Text).setEditable(false).setAlignment('center').setWidth('3rem'),
