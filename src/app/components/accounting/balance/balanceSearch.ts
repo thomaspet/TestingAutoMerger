@@ -188,6 +188,7 @@ export class BalanceSearch implements OnInit {
             searchValue = splitted[1];
         }
 
+        filters.push('isnull(statuscode,31001) ne 31004');
         filters.push(`financialdate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)

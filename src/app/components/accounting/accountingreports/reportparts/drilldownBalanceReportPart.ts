@@ -153,7 +153,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
             ),
             this.statisticsService.GetAll(
                 `model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions`
-                + `&filter=TopLevelAccountGroup.GroupNumber le 2${projectFilter}${departmentFilter}`
+                + `&filter=isnull(statuscode,31001) ne 31004 and TopLevelAccountGroup.GroupNumber le 2${projectFilter}${departmentFilter}`
                 + `&select=JournalEntryLine.AccountID as AccountID,`
                 + `sum(casewhen((${period1FilterExpression}) `
                 + `or (${period2FilterExpression})\\,1\\,0)) as CountEntries,`
