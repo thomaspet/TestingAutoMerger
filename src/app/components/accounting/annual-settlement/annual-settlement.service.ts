@@ -401,25 +401,25 @@ export class AnnualSettlementService extends BizHttp<any> {
             .pipe(
                 map(res => res.body),
                 map(list => {
-                    list[5]['info'] = 'Betalbar skatt beregnes ut fra skattemessig resultat etter formelen; skattemessig resultat * 22%. Denne blir bokført til slutt i dette steget.';
-                    list[6]['info'] = 'Denne beregnes ut fra endringene i midlertidige forskjeller. Formelen er: (UB, midlertidige forskjeller - IB, midlertidige forskjeller) * 22%. ';
-                    list[8]['editable'] = annualSettlement.StatusCode === 36115;
-                    list[8]['placeholder'] = 'Sum utbytte';
-                    list[8]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
+                    list[6]['info'] = 'Betalbar skatt beregnes ut fra skattemessig resultat etter formelen; skattemessig resultat * 22%. Denne blir bokført til slutt i dette steget.';
+                    list[7]['info'] = 'Denne beregnes ut fra endringene i midlertidige forskjeller. Formelen er: (UB, midlertidige forskjeller - IB, midlertidige forskjeller) * 22%. ';
+                    list[9]['editable'] = annualSettlement.StatusCode === 36115;
+                    list[9]['placeholder'] = 'Sum utbytte';
+                    list[9]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
                         + ' i utbytte dette året)';
-                    list[9]['info'] = 'Dette er årets regnskapsmessige resultat, etter skatt og utbytte, som vil overføres til egenkapitalen. Etter at dette steget er bokført, vil resultat- og balanseregnskapet balansere.';
+                    list[10]['info'] = 'Dette er årets regnskapsmessige resultat, etter skatt og utbytte, som vil overføres til egenkapitalen. Etter at dette steget er bokført, vil resultat- og balanseregnskapet balansere.';
                     return [
                         {
                             title: 'Beregning av skatt',
-                            items: [list[0], list[1], list[2], list[3]]
+                            items: [list[0], list[1], list[2], list[3], list[4]]
                         },
                         {
                             title: 'Disponering',
-                            items: [list[4], list[5], list[6], list[7]]
+                            items: [list[5], list[6], list[7], list[8]]
                         },
                         {
                             title: 'Utbytte',
-                            items: [list[8], list[9], list[10]]
+                            items: [list[9], list[10], list[11]]
                         }
                     ];
                 })
