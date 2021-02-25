@@ -51,14 +51,17 @@ export class NumberFormat {
                 return `${valueAsString.slice(0, 4)}${THINSPACE}${valueAsString.slice(4, 6)}${THINSPACE}${valueAsString.slice(6, 11)}`;
             }
 
-            if (valueAsString && valueAsString.length === 15) {
-                // Format to NO67 1503 83 66383
-                return [
-                    valueAsString.slice(0, 4),
-                    valueAsString.slice(4, 8),
-                    valueAsString.slice(8, 10),
-                    valueAsString.slice(10, 15),
-                ].join(THINSPACE);
+            if (valueAsString && valueAsString.length >= 15) {
+                // Format to 4 numbers + space + ... + last chars 
+                // e.g NO87 9710 1444 760
+
+                const parts = [];
+
+                for (let i = 0; i < valueAsString.length; i += 4) {
+                    parts.push(valueAsString.slice(i, i + 4));
+                }
+
+                return parts.join(THINSPACE);
             }
 
             return value || '';
