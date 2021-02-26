@@ -789,7 +789,7 @@ export class BillsView implements OnInit {
                     return (!paid && moment(item.PaymentDueDate).isBefore(moment().subtract({days: 1})))
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
-            new UniTableColumn('BankAccountAccountNumber', 'Bankgiro')
+            new UniTableColumn('BankAccountAccountNumber', 'Bankgiro', UniTableColumnType.BankAccount)
                 .setWidth('10rem', true, false),
 
             new UniTableColumn('PaymentID', 'KID/Melding')

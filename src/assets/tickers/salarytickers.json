@@ -37,6 +37,7 @@
             {
                 "Header": "Kontonr.",
                 "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber",
+                "Type": "bankaccount",
                 "Width": "8rem"
             },
             {
@@ -183,7 +184,8 @@
             },
             {
                 "Header": "Kontonr.",
-                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber"
+                "Field": "BusinessRelationInfo.DefaultBankAccount.AccountNumber",
+                "Type": "bankaccount"
             },
             {
                 "Header": "Adresse",

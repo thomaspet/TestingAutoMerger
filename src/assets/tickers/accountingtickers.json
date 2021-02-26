@@ -518,7 +518,8 @@
             },
             {
                 "Header": "Bankgiro",
-                "Field": "BankAccount.AccountNumber"
+                "Field": "BankAccount.AccountNumber",
+                "Type": "bankaccount"
             },
             {
                 "Header": "KID/Melding",
@@ -840,7 +841,8 @@
             },
             {
                 "Header": "Bankgiro",
-                "Field": "BankAccount.AccountNumber"
+                "Field": "BankAccount.AccountNumber",
+                "Type": "bankaccount"
             },
             {
                 "Header": "KID/Melding",
@@ -1109,8 +1111,8 @@
             },
             {
                 "Header": "Bankkonto",
-                "Type": "bankaccount",
-                "Field": "Info.DefaultBankAccount.AccountNumber"
+                "Field": "Info.DefaultBankAccount.AccountNumber",
+                "Type": "bankaccount"
             },
             {
                 "Header": "Foretrukket valuta",
@@ -1598,7 +1600,8 @@
             },
             {
                 "Header": "Bankgiro",
-                "Field": "BankAccount.AccountNumber"
+                "Field": "BankAccount.AccountNumber",
+                "Type": "bankaccount"
             },
             {
                 "Header": "KID/Melding",
